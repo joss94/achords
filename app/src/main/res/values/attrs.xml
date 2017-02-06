@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChordButton">
+        <attr name="color" format="color" />
+        <attr name="note" format="enum">
+            <enum name="A" value="0"/>
+            <enum name="Ad" value="1"/>
+            <enum name="B" value="2"/>
+            <enum name="C" value="3"/>
+            <enum name="Cd" value="4"/>
+            <enum name="D" value="5"/>
+            <enum name="Dd" value="6"/>
+            <enum name="E" value="7"/>
+            <enum name="Ed" value="8"/>
+            <enum name="F" value="9"/>
+            <enum name="G" value="10"/>
+            <enum name="Gd" value="11"/>
+        </attr>
+        <attr name="mode" format="enum">
+            <enum name="major" value="0"/>
+            <enum name="minor" value="1"/>
+            <enum name="seven" value="2"/>
+            <enum name="seven_major" value="3"/>
+            <enum name="four" value="4"/>
+            <enum name="six" value="5"/>
+        </attr>
+        <attr name="textColor" format = "color"/>
+    </declare-styleable>
+</resources>

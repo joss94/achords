@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="true">
+        </ListView>
+
+    </LinearLayout>
+
+
+
+    <ImageButton
+        android:id="@+id/new_song_button"
+        android:layout_width="@dimen/round_button_size"
+        android:layout_height="@dimen/round_button_size"
+        android:src="@drawable/ic_add_white_36dp"
+        android:background="@drawable/round_button_shape"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:elevation="5dp"/>
+
+</FrameLayout>

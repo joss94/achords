@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar" />
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="actionOverflowButtonStyle">@style/overflow_style</item>
+        <item name="android:textColor">@color/text_color</item>
+        <item name="editTextStyle">@style/editTextStyle</item>
+        <item name="colorPrimaryDark">@color/ExtraDarkBlue</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Dialog">
+
+    </style>
+
+    <style name="overflow_style" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_more_vert_white_24dp</item>
+    </style>
+
+    <style name="editTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:background">@drawable/edittext_shape</item>
+        <item name="android:textColorHint">@color/text_hint_color</item>
+    </style>
+
+    <style name="editionDescriptorStyle">
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:textSize">16dp</item>
+    </style>
+
+</resources>

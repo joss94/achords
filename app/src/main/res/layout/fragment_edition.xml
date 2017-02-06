@@ -1,0 +1,109 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:padding="10dp">
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="top">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title"
+                style="@style/editionDescriptorStyle"/>
+            <EditText
+                android:id="@+id/edition_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:padding="5dp"
+                />
+
+            <include layout="@layout/line_layout"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/artist"
+                style="@style/editionDescriptorStyle"/>
+            <AutoCompleteTextView
+                android:id="@+id/edition_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/editTextStyle"
+                android:padding="5dp"
+                android:maxLines="1"
+                />
+
+            <include layout="@layout/line_layout"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/edition_release_date_title"
+                    style="@style/editionDescriptorStyle"/>
+                <TextView
+                    android:id="@+id/edition_release_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin_small"
+                    android:clickable="true"
+                    android:textColor="@android:color/black"
+                    android:textSize="20dp"
+                    />
+
+            </LinearLayout>
+
+            <include layout="@layout/line_layout"/>
+
+            <TextView
+                android:id="@+id/lyrics_descriptor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lyrics"
+                style="@style/editionDescriptorStyle"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:id="@+id/edition_lyrics"
+                android:padding="5dp"
+                android:minLines="10"
+                android:textIsSelectable="false"
+                />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <ImageButton
+        android:id="@+id/edition_ok_button"
+        android:layout_width="@dimen/round_button_size"
+        android:layout_height="@dimen/round_button_size"
+        android:background="@drawable/round_button_shape"
+        android:src="@drawable/ic_check_white_36dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="20dp"
+        android:elevation="5dp"
+        />
+
+
+
+
+</RelativeLayout>

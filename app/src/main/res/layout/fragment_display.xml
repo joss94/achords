@@ -1,0 +1,104 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scroll_view"
+        android:scrollbars="none"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/display_title"
+                android:gravity="top|center"
+                android:textSize="@dimen/size_title_big"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/display_artist_date"
+                android:gravity="top|center"
+                android:textSize="@dimen/size_title_normal"
+                android:textStyle="italic"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                android:id="@+id/display_lyrics"
+                android:layout_weight="1"
+                android:padding="5dp" />
+
+            <ImageView
+                android:layout_marginTop="150dp"
+                android:layout_marginBottom="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:src="@drawable/gkey" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/Red"
+        android:visibility="invisible"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp">
+
+        <Button
+            android:id="@+id/chord_button"
+            android:layout_width="@dimen/round_button_size"
+            android:layout_height="@dimen/round_button_size"
+            android:text="Am"
+            android:textSize="20dp"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:src="@android:drawable/ic_menu_delete"
+            android:background="@drawable/round_button_shape"
+            android:layout_marginBottom="20dp"
+            android:elevation="5dp"/>
+
+        <ImageButton
+            android:id="@+id/scroll_button"
+            android:layout_width="@dimen/round_button_size"
+            android:layout_height="@dimen/round_button_size"
+            android:src="@android:drawable/ic_media_play"
+            android:background="@drawable/round_button_shape"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="20dp"
+            android:elevation="5dp"/>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/transparent_gradient"
+        android:layout_alignParentTop="true"/>
+
+</RelativeLayout>

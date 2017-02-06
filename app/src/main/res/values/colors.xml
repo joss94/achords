@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorAccent">#FF4081</color>
+    <!-- APP BASIC COLORS -->
+    <color name="DarkGrey">#111111</color>
+    <color name="LightGrey">#cccccc</color>
+    <color name="superLightGrey">#dddddd</color>
+    <color name="Grey">#777777</color>
+    <color name="DarkBlue">#000066</color>
+    <color name="ExtraDarkBlue">#000033</color>
+    <color name="Red">#BB0000</color>
+    <color name="Green">#008800</color>
+    <color name="Blue">#0000CC</color>
+    <color name="text_hint_color">#777777</color>
+    <color name="text_color">#000000</color>
+
+</resources>

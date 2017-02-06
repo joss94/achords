@@ -1,0 +1,110 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/transparent_gradient"
+        android:layout_alignParentTop="true"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scroll_view"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/chords_song_title"
+                android:gravity="top|center"
+                android:textSize="32dp"
+                android:text="Song title"
+                android:layout_marginBottom="16dp"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/chords_artist_date"
+                android:gravity="top|center"
+                android:textSize="16dp"
+                android:textStyle="italic"
+                android:text="artist - 1999"
+                android:layout_marginBottom="16dp"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:id="@+id/chord_lyrics"
+                android:layout_weight="1"
+                android:gravity="top|center"
+                android:orientation="vertical"
+                android:padding="5dp"/>
+
+            <ImageView
+                android:layout_marginTop="150dp"
+                android:layout_marginBottom="200dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:src="@drawable/gkey" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/round_button_margin">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recent_chords"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:reverseLayout="true"
+            app:stackFromEnd="true"/>
+
+        <com.joss.achords.Views.ChordButton
+            android:id="@+id/add_chord_button"
+            android:layout_width="@dimen/round_button_size"
+            android:layout_height="@dimen/round_button_size"
+            app:mode="minor"
+            app:note="A"
+            app:color="@color/DarkBlue"
+            app:textColor="@android:color/white"
+            android:elevation="5dp"/>
+
+
+    </LinearLayout>
+
+
+
+    <ImageButton
+        android:id="@+id/set_timestamps_button"
+        android:layout_width="@dimen/round_button_size"
+        android:layout_height="@dimen/round_button_size"
+        android:src="@drawable/ic_query_builder_white_36dp"
+        android:background="@drawable/round_button_shape"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/round_button_margin"
+        android:elevation="5dp"/>
+
+</RelativeLayout>
