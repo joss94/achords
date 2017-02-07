@@ -6,24 +6,18 @@
 
 
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/transparent_gradient"
-        android:layout_alignParentTop="true"/>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/scroll_view"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:paddingTop="@dimen/activity_vertical_margin">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/activity_vertical_margin">
+            android:orientation="vertical">
 
             <TextView
                 android:layout_width="match_parent"
@@ -35,16 +29,18 @@
                 android:layout_marginBottom="16dp"
                 />
 
+
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/chords_artist_date"
-                android:gravity="top|center"
-                android:textSize="16dp"
-                android:textStyle="italic"
-                android:text="artist - 1999"
-                android:layout_marginBottom="16dp"
-                />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/chords_artist_date"
+            android:gravity="top|center"
+            android:textSize="16dp"
+            android:textStyle="italic"
+            android:text="artist - 1999"
+            android:layout_marginBottom="16dp"
+            />
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -53,7 +49,9 @@
                 android:layout_weight="1"
                 android:gravity="top|center"
                 android:orientation="vertical"
-                android:padding="5dp"/>
+                android:paddingStart="5dp">
+
+            </LinearLayout>
 
             <ImageView
                 android:layout_marginTop="150dp"
@@ -66,6 +64,30 @@
 
     </ScrollView>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/transparent_gradient"
+        android:layout_alignParentTop="true"/>
+
+    <RelativeLayout
+        android:id="@+id/chord_bin"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/transparent_black"
+        android:visibility="gone"
+        android:layout_alignParentTop="true">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_delete"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:padding="20dp"
+            />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"

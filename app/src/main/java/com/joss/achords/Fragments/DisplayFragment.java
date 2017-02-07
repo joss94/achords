@@ -164,6 +164,13 @@ public class DisplayFragment extends Fragment{
         mContext = context;
     }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+        if(mCountDownTimer!=null){
+            mCountDownTimer.onFinish();
+        }
+    }
 
     private void displayLyrics(){
         mDisplayLyricsLayout.removeAllViewsInLayout();
@@ -274,7 +281,6 @@ public class DisplayFragment extends Fragment{
                 }
             }
             public void onFinish() {
-                Toast.makeText(mContext, "the timer reached 5 times the duration of the song and stopped", Toast.LENGTH_SHORT).show();
                 mScrolling=false;
                 mCountDownTimer.cancel();
                 mScrollButton.setImageResource(android.R.drawable.ic_media_play);
@@ -306,7 +312,6 @@ public class DisplayFragment extends Fragment{
         String date = (mSong.getReleaseYear()==0)?"":(" - "+String.valueOf(mSong.getReleaseYear()));
         mDisplayArtistDate.setText(String.format(mContext.getResources().getString(R.string.artist_display_title),artist, date));
     }
-
 
     public void changeID(UUID new_id) {
         id = new_id;

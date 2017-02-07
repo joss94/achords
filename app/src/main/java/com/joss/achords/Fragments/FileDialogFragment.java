@@ -19,7 +19,6 @@ import com.joss.achords.R;
 
 import java.io.File;
 
-
 public class FileDialogFragment extends AbstractDialogFragment {
 
     private static final String EXTRA_FILE = "Extra_file";

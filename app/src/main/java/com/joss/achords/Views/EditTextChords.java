@@ -2,6 +2,7 @@ package com.joss.achords.Views;
 
 import android.content.Context;
 import android.support.v4.view.GestureDetectorCompat;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.EditText;
@@ -27,6 +28,33 @@ public class EditTextChords extends EditText {
 
     public void setOnDoubleTapListener(OnEditTextChordDoubleTapListener doubleTapListener){
         this.doubleTapListener = doubleTapListener;
+    }
+
+    @Override
+    public boolean onDragEvent(DragEvent event) {
+        /*switch (event.getAction()) {
+            case DragEvent.ACTION_DRAG_STARTED:
+                return true;
+
+            case DragEvent.ACTION_DRAG_ENTERED:
+                this.requestFocus();
+                return true;
+
+            case DragEvent.ACTION_DRAG_LOCATION:
+                final int offset = getOffsetForPosition(event.getX(), event.getY());
+                Selection.setSelection((Spannable)mText, offset);
+                return true;
+
+            case DragEvent.ACTION_DROP:
+                if (mEditor != null) mEditor.onDrop(event);
+                return true;
+
+            case DragEvent.ACTION_DRAG_ENDED:
+            case DragEvent.ACTION_DRAG_EXITED:
+            default:
+                return true;
+        }*/
+        return false;
     }
 
     @Override

@@ -3,11 +3,7 @@ package com.joss.achords.Utils;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-
-import com.joss.achords.R;
-import com.joss.achords.Views.ChordButton;
 
 /**
  * Created by Joss on 03/02/2017.
@@ -15,36 +11,30 @@ import com.joss.achords.Views.ChordButton;
 
 public class ChordDragShadowBuilder extends View.DragShadowBuilder {
 
-    private static int SHADOW_SCALE_PERCENTS = 80;
-    private View shadow;
+    private float scale = 0.8f;
     private int width, height, padding;
 
     public ChordDragShadowBuilder(View view) {
         super(view);
-        shadow = LayoutInflater.from(view.getContext()).inflate(R.layout.chord_shadow, null, false);
-        //shadow.layout(0,0,view.getWidth()*SHADOW_SCALE_PERCENTS/100,view.getHeight()*SHADOW_SCALE_PERCENTS/100);
-        ((ChordButton)shadow.findViewById(R.id.button)).setChord(((ChordButton)view).getChord());
-        Log.d("SHADOW", "Setting shadow with chord: "+((ChordButton)view).getChord());
-        Log.d("SHADOW", "Shadow has dimensions : height "+shadow.getMeasuredHeight());
     }
 
     @Override
     public void onProvideShadowMetrics (Point size, Point touch) {
-        width = getView().getWidth();
-        padding = (int)(getView().getHeight()*0.75);
-        height = padding+getView().getHeight();
 
-        Log.d("SHADOW", "W/H : "+width+"/"+height);
+        width = (int) (getView().getWidth()*scale);
+        padding = (int)(getView().getHeight()*1.1);
+        height = (int) (padding+getView().getHeight()*scale);
 
-        size.set(width, height);
+        size.set(width, height-padding);
+        Log.d("SHADOW BUILDER", size.toString());
         touch.set(width / 2, height);
     }
 
     @Override
     public void onDrawShadow(Canvas canvas) {
-        shadow.layout(0,0,width, height-padding);
-        shadow.draw(canvas);
-        //shadow.draw(canvas);
+        canvas.scale(scale,scale);
+
+        getView().draw(canvas);
     }
 
 }
