@@ -24,6 +24,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/chords_song_title"
                 android:gravity="top|center"
+                android:layout_marginRight="60dp"
+                android:layout_marginLeft="60dp"
                 android:textSize="32dp"
                 android:text="Song title"
                 android:layout_marginBottom="16dp"

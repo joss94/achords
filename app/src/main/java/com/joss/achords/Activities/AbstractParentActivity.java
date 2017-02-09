@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.joss.achords.Fragments.ExportEmailDialogFragment;
 import com.joss.achords.Fragments.FileDialogFragment;
 import com.joss.achords.Fragments.UserDialogFragment;
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
+import com.joss.achords.Interfaces.OnDialogFragmentInteractionListener;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.Models.User;
 import com.joss.achords.R;
@@ -29,7 +30,7 @@ import java.util.UUID;
  * Created by Joss on 28/01/2017.
  */
 
-public abstract class AbstractParentActivity extends AppCompatActivity implements OnFragmentInteractionListener {
+public abstract class AbstractParentActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener {
 
     public static final int SETTINGS_MENU_ITEM = R.id.settings;
     public static final int EXPORT_MENU_ITEM = R.id.exportData;
@@ -38,9 +39,12 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     public static final String USER_ID = "user_id";
     public static final String USER_NAME = "user_name";
 
+    public static final String EXTRA_SONG_ID="com.joss.achords.extra_song_id";
+
     private String mOption="";
     private User user;
     private SharedPreferences sharedPreferences;
+    protected Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,16 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
         fr.show(getSupportFragmentManager(), "USER");
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        this.menu=menu;
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         Intent menuIntent;
@@ -79,13 +93,11 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                 break;
 
         }
-        return true;
+        return false;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
+    public Menu getMenu() {
+        return menu;
     }
 
     private void selectFile(){
@@ -136,13 +148,12 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
         //</editor-fold>
 
         //<editor-fold desc="SEND FILE BY EMAIL">
-        FileProvider provider = new FileProvider();
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("vnd.android.cursor.dir/email");
         i.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
         i.putExtra(Intent.EXTRA_SUBJECT, "Export of Songbook");
         i.putExtra(Intent.EXTRA_TEXT, "Please find attach to this email the exportSongbook file of your Songbook");
-        i.putExtra(Intent.EXTRA_STREAM, provider.getUriForFile(getApplicationContext(), "com.joss.essai.fileprovider", export_file));
+        i.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getApplicationContext(), "com.joss.achords.fileprovider", export_file));
         startActivityForResult(Intent.createChooser(i, "Send email"), 0);
         //</editor-fold>
 

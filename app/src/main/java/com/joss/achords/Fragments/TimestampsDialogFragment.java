@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.joss.achords.Activities.SongbookActivity;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.R;
@@ -35,7 +36,7 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
     public static TimestampsDialogFragment newInstance(UUID song_id) {
         TimestampsDialogFragment fragment = new TimestampsDialogFragment();
         Bundle args = new Bundle();
-        args.putSerializable(SongbookFragment.EXTRA_SONG_ID, song_id);
+        args.putSerializable(SongbookActivity.EXTRA_SONG_ID, song_id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -45,7 +46,7 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
         super.onCreate(savedInstanceState);
         mContext = getActivity().getApplicationContext();
         songbook = Songbook.get(mContext);
-        UUID song_id = (UUID) getArguments().getSerializable(SongbookFragment.EXTRA_SONG_ID);
+        UUID song_id = (UUID) getArguments().getSerializable(SongbookActivity.EXTRA_SONG_ID);
         mSong = songbook.getById(song_id);
         mEditedSong = mSong.copy();
     }

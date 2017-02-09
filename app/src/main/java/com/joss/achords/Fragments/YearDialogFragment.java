@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
 import com.joss.achords.R;
 
 import java.util.Calendar;
@@ -24,7 +23,6 @@ public class YearDialogFragment extends AbstractDialogFragment {
 
     private int mCurrentYear;
     private NumberPicker mNumberPicker;
-    private OnFragmentInteractionListener listener;
 
     public static YearDialogFragment newInstance(int year){
         Bundle args=new Bundle();
@@ -37,7 +35,6 @@ public class YearDialogFragment extends AbstractDialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        listener = (OnFragmentInteractionListener)getActivity();
     }
 
     @Override

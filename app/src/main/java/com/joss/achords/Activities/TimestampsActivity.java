@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.Fragments.SongbookFragment;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.R;
@@ -26,7 +25,7 @@ public class TimestampsActivity extends AbstractParentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timestamps);
-        UUID song_id = (UUID)getIntent().getExtras().get(SongbookFragment.EXTRA_SONG_ID);
+        UUID song_id = (UUID)getIntent().getExtras().get(SongbookActivity.EXTRA_SONG_ID);
         mSong = Songbook.get(getApplicationContext()).getById(song_id);
         mEditedSong=mSong.copy();
 

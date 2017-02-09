@@ -22,6 +22,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.joss.achords.Activities.SongbookActivity;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.LyricsLine;
@@ -53,6 +54,8 @@ public class DisplayFragment extends Fragment{
     private Context mContext;
     private UUID id;
 
+    private int startOffset = 20;
+
     private double scrollBuffer;
 
 
@@ -63,7 +66,7 @@ public class DisplayFragment extends Fragment{
     public static DisplayFragment newInstance(UUID id) {
         DisplayFragment fragment = new DisplayFragment();
         Bundle args = new Bundle();
-        args.putSerializable(SongbookFragment.EXTRA_SONG_ID, id);
+        args.putSerializable(SongbookActivity.EXTRA_SONG_ID, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +82,7 @@ public class DisplayFragment extends Fragment{
             }
         });
 
-        id = (UUID)getArguments().getSerializable(SongbookFragment.EXTRA_SONG_ID);
+        id = (UUID)getArguments().getSerializable(SongbookActivity.EXTRA_SONG_ID);
         mSong = Songbook.get(getActivity()).getById(id);
         mLyrics=(mSong.getLyrics()).copy();
     }
@@ -235,7 +238,7 @@ public class DisplayFragment extends Fragment{
         int lineHeightDp =1;
         int lineHeightPx = lineHeightDp * (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         RelativeLayout.LayoutParams lineParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, lineHeightPx);
-        lineParams.setMargins(0, mScrollView.getPaddingTop()+mDisplayLyricsLayout.getTop() + mDisplayLyricsLayout.getPaddingTop(), 0, 0);
+        lineParams.setMargins(0, mScrollView.getPaddingTop()+mDisplayLyricsLayout.getTop() + mDisplayLyricsLayout.getPaddingTop() - startOffset, 0, 0);
         mLine.setLayoutParams(lineParams);
         //</editor-fold>
 
@@ -259,6 +262,7 @@ public class DisplayFragment extends Fragment{
 
         mCountDownTimer = new CountDownTimer(5*songDuration, dt) {
             public void onTick(long millisUntilFinished) {
+                boolean passedOffset = mScrollView.getScrollY()+linesCoordinates.get(0)>=startOffset;
 
                 //<editor-fold desc="GET CURRENT LINE">
                 for(int i=0;i<linesCoordinates.size();i++){
@@ -269,7 +273,12 @@ public class DisplayFragment extends Fragment{
                 }
                 //</editor-fold>
 
-                double speed = 1000.0/(mSong.getLyrics().get(currentLine).getDuration());
+                double speed;
+                if (passedOffset) {
+                    speed = 1000.0/(mSong.getLyrics().get(currentLine).getDuration());
+                } else {
+                    speed = 0.25 ;
+                }
 
                 double dx = mDisplayLyricsLayout.getChildAt(currentLine).getHeight()*speed*(dt/1000.0);
                 if(dx+scrollBuffer<1){

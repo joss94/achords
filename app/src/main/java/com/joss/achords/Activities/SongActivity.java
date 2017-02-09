@@ -12,7 +12,6 @@ import android.view.View;
 import com.joss.achords.Fragments.ChordFragment;
 import com.joss.achords.Fragments.DisplayFragment;
 import com.joss.achords.Fragments.EditionFragment;
-import com.joss.achords.Fragments.SongbookFragment;
 import com.joss.achords.R;
 import com.joss.achords.Utils.CustomViewPager;
 
@@ -39,7 +38,7 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
         setSupportActionBar(toolbar);
         toolbar.showOverflowMenu();
 
-        song_id= (UUID)getIntent().getSerializableExtra(SongbookFragment.EXTRA_SONG_ID);
+        song_id= (UUID)getIntent().getSerializableExtra(EXTRA_SONG_ID);
         mode = (int)getIntent().getSerializableExtra(EXTRA_MODE);
 
         mViewPager = (CustomViewPager)v.findViewById(R.id.view_pager);

@@ -29,7 +29,7 @@ import android.widget.Toast;
 import com.joss.achords.Adapters.ChordButtonAdapter;
 import com.joss.achords.Interfaces.OnChordButtonClickListener;
 import com.joss.achords.Interfaces.OnEditTextChordDoubleTapListener;
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
+import com.joss.achords.Interfaces.OnDialogFragmentInteractionListener;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.LyricsLine;
@@ -51,7 +51,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         View.OnClickListener,
         View.OnFocusChangeListener,
         OnEditTextChordDoubleTapListener,
-        OnFragmentInteractionListener{
+        OnDialogFragmentInteractionListener {
 
     private static final String EXTRA_SONG_ID = "song_id";
     private static final String EXTRA_CHORD = "chord";
@@ -242,6 +242,10 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     }
 
     public void addChord(){
+        if(!mLyricsLineViews.get(mCurrentLine).hasFocus()){
+            Toast.makeText(getContext(), "Cursor not focused", Toast.LENGTH_SHORT).show();
+            return;
+        }
         boolean existsChord=false;
         ArrayList<Chord> chordsInLine = mLyrics.get(mCurrentLine).getChords();
         for(int i=0; i<chordsInLine.size(); i++){

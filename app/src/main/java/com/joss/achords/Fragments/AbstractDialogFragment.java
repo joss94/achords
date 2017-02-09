@@ -6,12 +6,12 @@ import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.widget.Button;
 
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
+import com.joss.achords.Interfaces.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
 
 public abstract class AbstractDialogFragment extends DialogFragment implements View.OnClickListener {
 
-    OnFragmentInteractionListener listener;
+    OnDialogFragmentInteractionListener listener;
 
     public AbstractDialogFragment() {
         // Required empty public constructor
@@ -61,7 +61,7 @@ public abstract class AbstractDialogFragment extends DialogFragment implements V
         return true;
     }
 
-    public void setOnFragmentInteractionListener(OnFragmentInteractionListener listener){
+    public void setOnFragmentInteractionListener(OnDialogFragmentInteractionListener listener){
         this.listener = listener;
     }
 

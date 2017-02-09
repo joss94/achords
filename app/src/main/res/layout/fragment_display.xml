@@ -20,6 +20,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/display_title"
                 android:gravity="top|center"
+                android:layout_marginRight="60dp"
+                android:layout_marginLeft="60dp"
                 android:textSize="@dimen/size_title_big"
                 android:layout_marginBottom="@dimen/activity_vertical_margin"
                 />

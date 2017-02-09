@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
+import com.joss.achords.Interfaces.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
 
 public class ExportEmailDialogFragment extends AbstractDialogFragment {
@@ -32,7 +32,7 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        listener = (OnFragmentInteractionListener)getActivity();
+        listener = (OnDialogFragmentInteractionListener)getActivity();
     }
 
     @Override

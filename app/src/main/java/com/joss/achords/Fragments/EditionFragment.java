@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joss.achords.Activities.AbstractParentActivity;
-import com.joss.achords.Interfaces.OnFragmentInteractionListener;
+import com.joss.achords.Activities.SongbookActivity;
+import com.joss.achords.Interfaces.OnDialogFragmentInteractionListener;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
@@ -32,7 +34,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 
-public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnFragmentInteractionListener{
+public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener {
     Song mSong;
     Song mEditedSong;
     EditText mEditionName;
@@ -52,7 +54,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public static EditionFragment newInstance(UUID song_id) {
         EditionFragment fragment = new EditionFragment();
         Bundle args = new Bundle();
-        args.putSerializable(SongbookFragment.EXTRA_SONG_ID, song_id);
+        args.putSerializable(SongbookActivity.EXTRA_SONG_ID, song_id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,7 +63,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mEditedSong=new Song();
-        song_id=(UUID)getArguments().getSerializable(SongbookFragment.EXTRA_SONG_ID);
+        song_id=(UUID)getArguments().getSerializable(SongbookActivity.EXTRA_SONG_ID);
         if(song_id!=null){
             mSong = Songbook.get(getActivity()).getById(song_id);
         }
@@ -191,8 +193,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         mEditedSong=mSong.copy();
     }
 
-    public boolean saveModifications()
-    {
+    public boolean saveModifications() {
         mEditedSong.setName(mEditionName.getText().toString());
         mEditedSong.setArtist(mEditionArtist.getText().toString());
         mEditedSong.setEditor(getActivity().getSharedPreferences(AbstractParentActivity.SHARED_PREFS, Context.MODE_PRIVATE).getString(AbstractParentActivity.USER_NAME, ""));
@@ -219,8 +220,8 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     }
 
     public void chooseDate(){
-        YearDialogFragment d=YearDialogFragment.newInstance((mSong.getReleaseYear()==0)?
-                Calendar.getInstance().get(Calendar.YEAR):mSong.getReleaseYear());
+        YearDialogFragment d=YearDialogFragment.newInstance((mEditedSong.getReleaseYear()==0)?
+                Calendar.getInstance().get(Calendar.YEAR):mEditedSong.getReleaseYear());
         d.setOnFragmentInteractionListener(this);
         d.show(getFragmentManager(), "DATE");
     }
@@ -296,6 +297,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
 
     @Override
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
+        Log.d("EDITION", "OnFragmentInteraction called");
         switch(requestCode){
             case YearDialogFragment.RELEASE_YEAR_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
