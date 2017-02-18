@@ -7,7 +7,7 @@
     android:layout_centerInParent="true"
     android:layout_gravity="center"
     android:orientation="vertical"
-    tools:context="com.joss.achords.Activities.TimestampsActivity">
+    tools:context=".SongEnvironment.ChordsEdition.Timestamps.TimestampsActivity">
 
     <TextView
         android:layout_width="match_parent"

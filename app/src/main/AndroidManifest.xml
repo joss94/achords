@@ -3,6 +3,7 @@
     package="com.joss.achords">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -12,11 +13,11 @@
         android:theme="@style/AppTheme.NoActionBar">
 
         <activity
-            android:name="com.joss.achords.Activities.SongActivity"
+            android:name="com.joss.achords.SongEnvironment.SongActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name="com.joss.achords.Activities.SongbookActivity"
+            android:name="com.joss.achords.SongbookHome.SongbookActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,10 +25,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.joss.achords.Activities.TimestampsActivity"
+            android:name=".SongEnvironment.ChordsEdition.Timestamps.TimestampsActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.joss.achords.Activities.MySettingsActivity"
+            android:name="com.joss.achords.Settings.MySettingsActivity"
             android:label="@string/title_activity_my_settings"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

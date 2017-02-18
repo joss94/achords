@@ -8,8 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.joss.achords.Utils.DbContract;
-import com.joss.achords.Utils.SongsDbHelper;
+import com.joss.achords.Database.DbContract;
+import com.joss.achords.Database.SongsDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;

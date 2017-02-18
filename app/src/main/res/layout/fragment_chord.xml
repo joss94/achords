@@ -106,7 +106,7 @@
             app:reverseLayout="true"
             app:stackFromEnd="true"/>
 
-        <com.joss.achords.Views.ChordButton
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
             android:id="@+id/add_chord_button"
             android:layout_width="@dimen/round_button_size"
             android:layout_height="@dimen/round_button_size"

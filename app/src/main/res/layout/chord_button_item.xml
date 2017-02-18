@@ -24,7 +24,7 @@
         android:textSize="20sp"
         android:elevation="5dp"/>-->
 
-    <com.joss.achords.Views.ChordButton
+    <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
         android:id="@+id/button"
         android:layout_width="@dimen/round_button_size"
         android:layout_height="@dimen/round_button_size"
