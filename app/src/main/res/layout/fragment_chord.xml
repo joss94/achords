@@ -75,7 +75,7 @@
         android:orientation="vertical"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/round_button_margin">
+        android:layout_marginEnd="@dimen/round_button_margin">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recent_chords"
@@ -90,7 +90,7 @@
             android:layout_height="@dimen/round_button_size"
             android:src="@drawable/ic_add_white_36dp"
             android:background="@drawable/round_button_shape"
-            android:elevation="5dp"/>
+            android:layout_marginBottom="@dimen/round_button_margin" android:elevation="5dp"/>
 
 
     </LinearLayout>
