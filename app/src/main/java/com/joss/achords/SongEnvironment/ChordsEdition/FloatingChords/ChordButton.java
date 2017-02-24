@@ -66,11 +66,13 @@ public class ChordButton extends View {
 
     public void setTextColor(int textColor) {
         this.textColor = textColor;
+        createPaints();
         invalidate();
     }
 
     public void setButtonColor(int buttonColor) {
         this.buttonColor = buttonColor;
+        createPaints();
         invalidate();
     }
 

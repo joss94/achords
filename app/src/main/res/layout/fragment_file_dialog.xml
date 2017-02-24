@@ -5,6 +5,8 @@
     android:orientation="vertical"
     tools:context="com.joss.achords.Import.FileDialogFragment">
 
+    <include layout="@layout/dialog_title"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/file_chooser_listview"
         android:layout_width="match_parent"

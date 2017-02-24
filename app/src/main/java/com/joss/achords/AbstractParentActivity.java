@@ -2,37 +2,38 @@ package com.joss.achords;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.joss.achords.Export.ExportEmailDialogFragment;
-import com.joss.achords.Import.FileDialogFragment;
 import com.joss.achords.Fragments.UserDialogFragment;
-import com.joss.achords.OnDialogFragmentInteractionListener;
+import com.joss.achords.Import.FileDialogFragment;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.Models.User;
-import com.joss.achords.R;
 import com.joss.achords.Settings.MySettingsActivity;
 import com.joss.achords.SongbookHome.SongbookActivity;
 
 import org.json.JSONException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
+/*
  * Created by Joss on 28/01/2017.
  */
 
-public abstract class AbstractParentActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener {
+public abstract class AbstractParentActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener, PopupMenu.OnMenuItemClickListener {
 
     public static final int SETTINGS_MENU_ITEM = R.id.settings;
     public static final int EXPORT_MENU_ITEM = R.id.exportData;
@@ -43,6 +44,8 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
 
     public static final String EXTRA_SONG_ID="com.joss.achords.extra_song_id";
 
+    public static Typeface SONG_TITLE_TYPEFACE;
+
     private String mOption="";
     private User user;
     private SharedPreferences sharedPreferences;
@@ -51,6 +54,8 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        initializeFonts();
 
         sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
         try {
@@ -62,24 +67,47 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
         }
     }
 
+    private void initializeFonts() {
+        AchordsTypefaces.SONG_TITLE_FONT_LIGHT.setTypeface(Typeface.createFromAsset(getAssets(), getResources().getString(R.string.song_title_font_light)));
+        AchordsTypefaces.SONG_TITLE_FONT.setTypeface(Typeface.createFromAsset(getAssets(), getResources().getString(R.string.song_title_font)));
+    }
+
     protected void createNewUser(){
         UserDialogFragment fr = new UserDialogFragment();
         fr.setOnFragmentInteractionListener(this);
         fr.show(getSupportFragmentManager(), "USER");
     }
 
+    public void setToolbarPadding(Toolbar toolbar) {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        if(toolbar!=null){
+            toolbar.setPadding(0,result,0,0);
+        }
+    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        this.menu=menu;
-        return true;
+    public void configOverflowMenu(Toolbar toolbar){
+        final ImageView overflowBtn = (ImageView)toolbar.findViewById(R.id.overflow_btn);
+        overflowBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createOverflowMenu(overflowBtn);
+            }
+        });
+    }
+
+    public void createOverflowMenu(View anchorView){
+        PopupMenu popup = new PopupMenu(AbstractParentActivity.this, anchorView);
+        popup.getMenuInflater().inflate(R.menu.menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item){
+    public boolean onMenuItemClick(MenuItem item) {
         Intent menuIntent;
         switch(item.getItemId()){
             case IMPORT_MENU_ITEM:
@@ -90,17 +118,14 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                 selectEmail();
                 break;
             case SETTINGS_MENU_ITEM:
-                menuIntent = new Intent(this, MySettingsActivity.class);
-                this.startActivity(menuIntent);
+                menuIntent = new Intent(getApplication(), MySettingsActivity.class);
+                startActivity(menuIntent);
                 break;
-
         }
         return false;
     }
 
-    public Menu getMenu() {
-        return menu;
-    }
+
 
     private void selectFile(){
         FileDialogFragment fileDialog = FileDialogFragment.newInstance();
@@ -135,17 +160,13 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
 
         //<editor-fold desc="WRITE SONGBOOK INTO FILE">
         File export_file = new File(getCacheDir(), "export_file");
-        if (export_file!=null) {
-            try {
-                FileOutputStream os = new FileOutputStream(export_file);
-                os.write(Songbook.EXPORT_FORMAT_JSON_TOKEN.getBytes());
-                os.write(new byte[]{'\n'});
-                os.write(bytes);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            FileOutputStream os = new FileOutputStream(export_file);
+            os.write(Songbook.EXPORT_FORMAT_JSON_TOKEN.getBytes());
+            os.write(new byte[]{'\n'});
+            os.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         //</editor-fold>
 
@@ -173,6 +194,9 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                         Intent i = new Intent(getApplicationContext(), SongbookActivity.class);
                         startActivity(i);
                         Toast.makeText(getApplicationContext(), "Songbook imported successfully !", Toast.LENGTH_LONG).show();
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "Invalid format !!", Toast.LENGTH_LONG).show();
                     }
                 }
                 //</editor-fold>

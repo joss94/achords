@@ -1,20 +1,21 @@
 package com.joss.achords.SongEnvironment.SongDisplay;
 
 import android.content.Context;
-import android.graphics.Paint;
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -22,30 +23,37 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.achords.AchordsTypefaces;
+import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.LyricsLine;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
+import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
-import com.joss.achords.LyricsDisplay.ChordSpan;
+import com.joss.achords.SongEnvironment.ChordsEdition.ChordDialogFragment;
+import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton;
+import com.joss.achords.SongbookHome.SongbookActivity;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.UUID;
 
 
-public class DisplayFragment extends Fragment{
-    Song mSong;
-    TextView mDisplayName;
-    TextView mDisplayArtistDate;
+public class DisplayFragment extends Fragment implements View.OnLongClickListener, OnDialogFragmentInteractionListener {
+    private Song mSong;
+    private TextView mDisplayCapo;
     private LinearLayout mDisplayLyricsLayout;
     private ScrollView mScrollView;
     private ImageButton mScrollButton;
-    private Button mChordButton;
+    private ChordButton mChordButton;
     private View mLine;
     private Lyrics mLyrics;
     private ArrayList<Integer> linesCoordinates = new ArrayList<>();
+    private int toneOffset;
+
+    long precedent=0;
 
     private int currentLine;
     private CountDownTimer mCountDownTimer;
@@ -54,9 +62,9 @@ public class DisplayFragment extends Fragment{
     private Context mContext;
     private UUID id;
 
-    private int startOffset = 20;
+    private int startOffset = 0;
 
-    private double scrollBuffer;
+    private float scrollBuffer;
 
 
     public DisplayFragment() {
@@ -85,6 +93,7 @@ public class DisplayFragment extends Fragment{
         id = (UUID)getArguments().getSerializable(SongbookActivity.EXTRA_SONG_ID);
         mSong = Songbook.get(getActivity()).getById(id);
         mLyrics=(mSong.getLyrics()).copy();
+        toneOffset=0;
     }
 
     @Override
@@ -92,37 +101,57 @@ public class DisplayFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v=inflater.inflate(R.layout.fragment_display, container, false);
+        findViews(v);
+        setViews();
+        setActions();
 
-        //<editor-fold desc="FIND VIEWS">
-        mDisplayName=(TextView)v.findViewById(R.id.display_title);
-        mDisplayArtistDate=(TextView)v.findViewById(R.id.display_artist_date);
+        return v;
+    }
+
+    public void findViews(View v){
         mDisplayLyricsLayout =(LinearLayout)v.findViewById(R.id.display_lyrics);
         mScrollView=(ScrollView)v.findViewById(R.id.scroll_view);
         mLine = v.findViewById(R.id.line);
-        //</editor-fold>
+        mDisplayCapo = (TextView) v.findViewById(R.id.display_capo);
+        mScrollButton = (ImageButton)v.findViewById(R.id.scroll_button);
+        mChordButton = (ChordButton)v.findViewById(R.id.chord_button);
+    }
 
-        //<editor-fold desc="SETTING TITLES AND LYRICS">
+    @SuppressWarnings("deprecation")
+    public void setViews(){
         if(mSong!=null){
-            mDisplayName.setText(mSong.getName());
-            String artist;
-            if(mSong.getArtist()==null || mSong.getArtist().isEmpty()){
-                artist = "Unknown";
+            if (mSong.getCapo()!= 0) {
+                mDisplayCapo.setVisibility(View.VISIBLE);
+                mDisplayCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), mSong.getCapo()));
+            } else {
+                mDisplayCapo.setVisibility(View.GONE);
+            }
+            displayLyrics();
+            if(mSong.getFirstChord()!=null){
+                mChordButton.setVisibility(View.VISIBLE);
+                Chord chord = mSong.getFirstChord().copy();
+                chord.setNote(chord.getNote()+toneOffset);
+                mChordButton.setChord(chord);
             }
             else{
-                artist = mSong.getArtist();
+                mChordButton.setVisibility(View.GONE);
             }
-            String date = (mSong.getReleaseYear()==0)?"":(" - "+String.valueOf(mSong.getReleaseYear()));
-            mDisplayArtistDate.setText(String.format(getString(R.string.artist_display_title),artist, date));
-            displayLyrics();
+        }
+
+        ((GradientDrawable)mScrollButton.getBackground()).setColor(mContext.getResources().getColor(R.color.Red));
+
+        if(mDisplayChord){
+            mChordButton.setButtonColor(mContext.getResources().getColor(R.color.DarkBlue));
+            mChordButton.setTextColor(Color.WHITE);
         }
         else{
-            mDisplayName.setText("No song....");
+            mChordButton.setButtonColor(mContext.getResources().getColor(R.color.LightGrey));
+            mChordButton.setTextColor(mContext.getResources().getColor(R.color.DarkBlue));
         }
-        //</editor-fold>
+    }
 
+    public void setActions(){
         //<editor-fold desc="SCROLL BUTTON">
-        mScrollButton = (ImageButton)v.findViewById(R.id.scroll_button);
-        ((GradientDrawable)mScrollButton.getBackground()).setColor(getResources().getColor(R.color.Red));
         mScrollButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -136,29 +165,24 @@ public class DisplayFragment extends Fragment{
             }
         });
         //</editor-fold>
-
         //<editor-fold desc="CHORD BUTTON">
-        mChordButton = (Button)v.findViewById(R.id.chord_button);
-        ((GradientDrawable)mChordButton.getBackground()).setColor(getResources().getColor(R.color.DarkBlue));
         mChordButton.setOnClickListener(new View.OnClickListener() {
+            @SuppressWarnings("deprecation")
             @Override
             public void onClick(View v) {
                 if(!mDisplayChord){
-                    mChordButton.setPaintFlags(mChordButton.getPaintFlags()&(~Paint.STRIKE_THRU_TEXT_FLAG));
                     mDisplayChord=true;
-                    displayLyrics();
+                    setViews();
                 }
                 else{
-                    mChordButton.setPaintFlags(mChordButton.getPaintFlags()| Paint.STRIKE_THRU_TEXT_FLAG);
                     mDisplayChord=false;
-                    displayLyrics();
+                    setViews();
                 }
 
             }
         });
+        mChordButton.setOnLongClickListener(this);
         //</editor-fold>
-
-        return v;
     }
 
     @Override
@@ -186,7 +210,7 @@ public class DisplayFragment extends Fragment{
             //<editor-fold desc="CREATE AND SET TEXT VIEW">
             final TextView lineView = new TextView(mContext);
             lineView.setId(i);
-            lineView.setTextSize(16);
+            lineView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimensionPixelSize(R.dimen.size_lyrics));
             lineView.setPadding(0,0,0,0);
             lineView.setInputType(InputType.TYPE_CLASS_TEXT |
                     InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
@@ -196,7 +220,9 @@ public class DisplayFragment extends Fragment{
             //<editor-fold desc="ADD CHORDS">
             final SpannableString spannable = new SpannableString(lyricsLine.getText());
             if (mDisplayChord) {
-                for(Chord chord:lyricsLine.getChords()){
+                for(Chord realChord:lyricsLine.getChords()){
+                    Chord chord = realChord.copy();
+                    chord.setNote(realChord.getNote()+toneOffset);
                     if(chord.getPosition()<spannable.length()-1){
                         spannable.setSpan(new ChordSpan(chord), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
@@ -234,11 +260,16 @@ public class DisplayFragment extends Fragment{
         }
 
         //<editor-fold desc="SET LINE MARKER">
-        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         int lineHeightDp =1;
         int lineHeightPx = lineHeightDp * (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         RelativeLayout.LayoutParams lineParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, lineHeightPx);
-        lineParams.setMargins(0, mScrollView.getPaddingTop()+mDisplayLyricsLayout.getTop() + mDisplayLyricsLayout.getPaddingTop() - startOffset, 0, 0);
+        int linePos = mScrollView.getTop()
+                + mScrollView.getChildAt(0).getTop()
+                + mDisplayLyricsLayout.getTop()
+                + mDisplayLyricsLayout.getPaddingTop()
+                - startOffset;
+        lineParams.setMargins(0, linePos, 0, 0);
         mLine.setLayoutParams(lineParams);
         //</editor-fold>
 
@@ -250,7 +281,7 @@ public class DisplayFragment extends Fragment{
             songDuration += lyricsLine.getDuration();
             if(lyricsLine.getDuration()==0){
                 Log.d("DISPLAY", "Line "+lyricsLine.getText()+" has a duration of 0");
-                Toast.makeText(getContext(), "Some timestamps are not defined properly, please recalibrate the song", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.undefined_timestamps, Toast.LENGTH_LONG).show();
                 stopScrolling();
                 return;
             }
@@ -259,28 +290,25 @@ public class DisplayFragment extends Fragment{
 
         final int dt = 40;
         scrollBuffer = 0;
+        long totalTime = 5*songDuration;
+        precedent = totalTime;
 
-        mCountDownTimer = new CountDownTimer(5*songDuration, dt) {
+
+        mCountDownTimer = new CountDownTimer(totalTime, dt) {
             public void onTick(long millisUntilFinished) {
-                boolean passedOffset = mScrollView.getScrollY()+linesCoordinates.get(0)>=startOffset;
-
+                float timeElapsed = (float) (precedent-millisUntilFinished);
+                precedent=millisUntilFinished;
                 //<editor-fold desc="GET CURRENT LINE">
-                for(int i=0;i<linesCoordinates.size();i++){
-                    int lineCoordinate = linesCoordinates.get(i);
-                    if (mScrollView.getScrollY()+linesCoordinates.get(0)>=lineCoordinate){
+                int i=0;
+                    while(i<linesCoordinates.size() && mScrollView.getScrollY()
+                            + linesCoordinates.get(0)>=linesCoordinates.get(i)){
                         currentLine = i;
-                    }
+                        i++;
                 }
                 //</editor-fold>
 
-                double speed;
-                if (passedOffset) {
-                    speed = 1000.0/(mSong.getLyrics().get(currentLine).getDuration());
-                } else {
-                    speed = 0.25 ;
-                }
+                float dx = ((float)mDisplayLyricsLayout.getChildAt(currentLine).getHeight())*timeElapsed/(float)mSong.getLyrics().get(currentLine).getDuration();
 
-                double dx = mDisplayLyricsLayout.getChildAt(currentLine).getHeight()*speed*(dt/1000.0);
                 if(dx+scrollBuffer<1){
                     scrollBuffer+=dx;
                 }
@@ -308,22 +336,43 @@ public class DisplayFragment extends Fragment{
 
     public void refresh(){
         mSong = Songbook.get(getActivity()).getById(id);
-        mLyrics=mSong.getLyrics().copy();;
-        displayLyrics();
-        mDisplayName.setText(mSong.getName());
-        String artist;
-        if(mSong.getArtist()==null || mSong.getArtist().isEmpty()){
-            artist = "Unknown";
-        }
-        else{
-            artist = mSong.getArtist();
-        }
-        String date = (mSong.getReleaseYear()==0)?"":(" - "+String.valueOf(mSong.getReleaseYear()));
-        mDisplayArtistDate.setText(String.format(mContext.getResources().getString(R.string.artist_display_title),artist, date));
+        mLyrics=mSong.getLyrics().copy();
+        setViews();
     }
 
     public void changeID(UUID new_id) {
         id = new_id;
         refresh();
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        switch(v.getId()){
+            case R.id.chord_button:
+                if (mSong.getFirstChord()!=null) {
+                    ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mChordButton.getChord().getNote(), -1);
+                    chooseChordFragment.setOnFragmentInteractionListener(this);
+                    chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
+                } else {
+                    Toast.makeText(getContext(), R.string.change_tone_no_chords, Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+        return false;
+    }
+
+    @Override
+    public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
+        switch(requestCode){
+            case ChordDialogFragment.SELECT_CHORD_REQUEST_CODE:
+                if(resultCode == AppCompatActivity.RESULT_OK){
+                    Chord chord = (Chord)args[0];
+                    int newNote = chord.getNote();
+                    toneOffset = newNote - mSong.getFirstChord().getNote();
+                    toneOffset = (toneOffset<0)?toneOffset+Chord.scale.size():toneOffset;
+                    setViews();
+                }
+                break;
+        }
     }
 }

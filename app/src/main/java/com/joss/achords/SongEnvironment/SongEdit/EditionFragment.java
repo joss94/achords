@@ -23,26 +23,29 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joss.achords.AbstractParentActivity;
-import com.joss.achords.SongbookHome.SongbookActivity;
-import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
+import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
+import com.joss.achords.SongbookHome.SongbookActivity;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
-
-import javax.net.ssl.HttpsURLConnection;
 
 
 public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener {
@@ -83,6 +86,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -116,7 +120,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
                 mEditionArtist.setText(mSong.getArtist());
             }
             if(mSong.getReleaseYear()==0){
-                mEditionReleaseYear.setText("Choose a date");
+                mEditionReleaseYear.setText(R.string.release_date_hint);
                 mEditionReleaseYear.setTextColor(getResources().getColor(R.color.text_hint_color));
             }
             else{
@@ -129,7 +133,9 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         }
         //</editor-fold>
 
-        mEditedSong = mSong.copy();
+        if (mSong != null) {
+            mEditedSong = mSong.copy();
+        }
 
         //Set TextWatcher to handle lyrics changes
         mEditionLyrics.addTextChangedListener(new TextWatcher() {
@@ -145,7 +151,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 replacing = s.subSequence(start, start+count);
-                handleLyricsModification(s, start, replaced.toString().toCharArray(), replacing.toString().toCharArray());
+                handleLyricsModification(start, replaced.toString().toCharArray(), replacing.toString().toCharArray());
             }
 
             @Override
@@ -181,7 +187,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
 
         //Set URL Button
         ImageButton url_button=(ImageButton)v.findViewById(R.id.edition_url_button);
-        ((GradientDrawable)url_button.getBackground()).setColor(getResources().getColor(R.color.DarkBlue));
+        ((GradientDrawable)url_button.getBackground()).setColor(getResources().getColor(R.color.colorPrimary));
         url_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -224,6 +230,10 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         mEditedSong.setName(mEditionName.getText().toString());
         mEditedSong.setArtist(mEditionArtist.getText().toString());
         mEditedSong.setEditor(getActivity().getSharedPreferences(AbstractParentActivity.SHARED_PREFS, Context.MODE_PRIVATE).getString(AbstractParentActivity.USER_NAME, ""));
+        try {
+            mEditedSong.setReleaseYear(Integer.parseInt(mEditionReleaseYear.getText().toString()));
+        } catch (NumberFormatException ignored) {
+        }
         if(mSong.getLyrics().isEmpty()){
             mEditedSong.setLyrics(new Lyrics(mEditionLyrics.getText().toString()));
         }
@@ -253,7 +263,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         d.show(getFragmentManager(), "DATE");
     }
 
-    public void handleLyricsModification(CharSequence s, int start, char[] replaced, char[]replacing) {
+    public void handleLyricsModification(int start, char[] replaced, char[]replacing) {
 
         //<editor-fold desc="CHECK FOR EXISTING LYRICS">
         if (creatingLyrics) {
@@ -261,7 +271,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
             if(newLyrics.endsWith("\n")){
                 newLyrics = newLyrics.substring(0,newLyrics.length()-1);
             }
-            mEditedSong.setLyrics(new Lyrics(mEditionLyrics.getText().toString()));
+            mEditedSong.setLyrics(new Lyrics(newLyrics));
             return;
         }
         //</editor-fold>
@@ -269,7 +279,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         int lineNumber = getLineNumber(start);
         int charPos = getCharPosInLine(start);
 
-        for(char replacedChar:replaced) {
+        for (char ignored : replaced) {
             mEditedSong.getLyrics().deleteChar(lineNumber, charPos);
         }
 
@@ -322,6 +332,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         listeners.add(listener);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
         Log.d("EDITION", "OnFragmentInteraction called");
@@ -331,13 +342,11 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
                     int year = (int)args[0];
                     mEditionReleaseYear.setText(String.valueOf(year));
                     mEditionReleaseYear.setTextColor(getContext().getResources().getColor(android.R.color.black));
-                    mEditedSong.setReleaseYear(year);
                 }
                 break;
 
             case URLDialogFragment.URL_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
-                    String[] params = new String [] {(String)args[0]};
                     new LyricsLoader().execute((String)args[0]);
                 }
                 break;
@@ -348,33 +357,87 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         void onSongChanged(UUID id);
     }
 
-    public class LyricsLoader extends AsyncTask<String, Void, String>{
-        @Override
-        protected String doInBackground(String... arg) {
-            URL url = null;
-            Log.d("Edition", "URL to connect: "+arg[0]);
-            String line;
-            String r="";
-            try {
-                url = new URL(arg[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    public void loadLyricsFromHtml(Document doc){
+        String website = doc.baseUri().substring(0, doc.baseUri().indexOf('/', 10));
+        Toast.makeText(getContext(), "Lyrics imported from "+website, Toast.LENGTH_SHORT).show();
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                while ((line = br.readLine()) != null) {
-                    r += line;
+        switch(website){
+            case "http://www.azlyrics.com/":
+                break;
+
+            case "https://play.google.com":
+                parseGoogleLyrics(doc);
+                break;
+
+            case "https://www.musixmatch.com":
+                parseMxmLyrics(doc);
+                break;
+
+            default:
+                Toast.makeText(getContext(), "Impossible to import lyrics from this URL", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+    public void parseMxmLyrics(Document doc){
+        String lyrics="";
+        Elements lyricsElms = doc.select("p.mxm-lyrics__content");
+        for(Element element : lyricsElms){
+            String line = ((TextNode)element.childNode(0)).getWholeText();
+            lyrics+=line + '\n';
+        }
+        mEditionLyrics.setText(lyrics.substring(0, lyrics.length()-1));
+
+        Element titleElement = doc.select("h1.mxm-track-title__track").first();
+        mEditionName.setText(((TextNode)titleElement.childNode(1)).getWholeText());
+
+        Element artistElement = doc.select("a.mxm-track-title__artist").first();
+        mEditionArtist.setText(((TextNode)artistElement.childNode(0)).getWholeText());
+
+        Element dateElement = doc.select("h3.mui-cell__subtitle").first();
+        String yearText = ((TextNode)dateElement.childNode(0)).getWholeText();
+        yearText = yearText.substring(yearText.length()-4);
+        mEditionReleaseYear.setText(yearText);
+        mEditionReleaseYear.setTextColor(getContext().getResources().getColor(android.R.color.black));
+    }
+
+    public void parseGoogleLyrics(Document doc){
+        String lyrics="";
+        Element lyricsElm = doc.select("div.lyrics").get(0);
+        for(Element lyricsLine : lyricsElm.select("p")){
+            for(Node childNode : lyricsLine.childNodes()){
+                if (childNode instanceof TextNode) {
+                    lyrics += ((TextNode)childNode).getWholeText()+'\n';
                 }
+            }
+            lyrics += '\n';
+        }
+        mEditionLyrics.setText(lyrics.substring(0, lyrics.length()-1));
+
+        Element titleElement = doc.select("div.title.fade-out").first().child(0);
+        mEditionName.setText(((TextNode)titleElement.childNode(0)).getWholeText());
+
+        Element artistElement = doc.select("div.album-artist.fade-out").first();
+        mEditionArtist.setText(((TextNode)artistElement.childNode(0)).getWholeText());
+    }
+
+    public class LyricsLoader extends AsyncTask<String, Void, Document>{
+        @Override
+        protected Document doInBackground(String... arg) {
+            try {
+                Document doc = Jsoup.connect(arg[0]).get();
+                doc.getAllElements();
+                return doc;
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            return r;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String html){
-            Log.d("Edition", "html from url: "+html);
-            mEditionLyrics.setText(html);
+        protected void onPostExecute(Document doc){
+            loadLyricsFromHtml(doc);
         }
     }
 }

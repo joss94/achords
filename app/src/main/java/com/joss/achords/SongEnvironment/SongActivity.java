@@ -8,8 +8,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.joss.achords.AbstractParentActivity;
+import com.joss.achords.AchordsTypefaces;
+import com.joss.achords.Models.Song;
+import com.joss.achords.Models.Songbook;
 import com.joss.achords.SongEnvironment.ChordsEdition.ChordFragment;
 import com.joss.achords.SongEnvironment.SongDisplay.DisplayFragment;
 import com.joss.achords.SongEnvironment.SongEdit.EditionFragment;
@@ -27,6 +32,7 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
     private int mode;
     private CustomViewPager mViewPager;
     private SparseArray<Fragment> registeredFragments;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -34,11 +40,24 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
         View v=getLayoutInflater().inflate(R.layout.activity_song,null);
         setContentView(v);
 
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        song_id= (UUID)getIntent().getSerializableExtra(EXTRA_SONG_ID);
+        Song song = Songbook.get(this).getById(song_id);
+
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setText(song.getName());
+        ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
+        ((TextView)toolbar.findViewById(R.id.toolbar_artist)).setText((song.getArtist()!=null&&!song.getArtist().isEmpty())?song.getArtist():getResources().getString(R.string.unknown));
+        toolbar.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        setToolbarPadding(toolbar);
+        configOverflowMenu(toolbar);
         setSupportActionBar(toolbar);
         toolbar.showOverflowMenu();
 
-        song_id= (UUID)getIntent().getSerializableExtra(EXTRA_SONG_ID);
         mode = (int)getIntent().getSerializableExtra(EXTRA_MODE);
 
         mViewPager = (CustomViewPager)v.findViewById(R.id.view_pager);
@@ -96,6 +115,9 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
     public void onSongChanged(UUID id) {
         mode = EXTRA_DISPLAY_MODE;
         song_id=id;
+        Song song = Songbook.get(this).getById(song_id);
+        ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setText(song.getName());
+        ((TextView)toolbar.findViewById(R.id.toolbar_artist)).setText((song.getArtist()!=null&&!song.getArtist().isEmpty())?song.getArtist():getResources().getString(R.string.unknown));
         if(registeredFragments.get(1)!=null){
             ((DisplayFragment)registeredFragments.get(1)).changeID(id);
         }

@@ -4,12 +4,12 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-/**
+/*
  * Created by Joss on 21/12/2016.
  */
 
 public class SongsDbHelper extends SQLiteOpenHelper {
-    public static final String DB_NAME = "songbook_database";
+    private static final String DB_NAME = "songbook_database";
 
     public SongsDbHelper(Context context){
         super(context, DB_NAME, null, 1);
@@ -25,6 +25,7 @@ public class SongsDbHelper extends SQLiteOpenHelper {
                     DbContract.DbSongs.COLUMN_NAME_EDITOR+" TEXT," +
                     DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE+" TEXT," +
                     DbContract.DbSongs.COLUMN_NAME_LYRICS+" TEXT," +
+                    DbContract.DbSongs.COLUMN_NAME_CAPO+" INTEGER," +
                     "PRIMARY KEY (" + DbContract.DbSongs.COLUMN_NAME_UUID + ")" +
                     ")");
     }

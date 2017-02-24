@@ -1,10 +1,15 @@
 package com.joss.achords;
 
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
+
+import static android.widget.ListPopupWindow.WRAP_CONTENT;
 
 public abstract class AbstractDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -15,8 +20,19 @@ public abstract class AbstractDialogFragment extends DialogFragment implements V
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public Dialog onCreateDialog(final Bundle b){
+        Dialog d = super.onCreateDialog(b);
+        d.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return d;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Window w = getDialog().getWindow();
+        if (w != null) {
+            w.setLayout((int) (getResources().getDisplayMetrics().widthPixels*0.8), WRAP_CONTENT);
+        }
     }
 
     @Override
@@ -38,6 +54,10 @@ public abstract class AbstractDialogFragment extends DialogFragment implements V
                 cancel_button.setOnClickListener(this);
             }
         }
+    }
+
+    public void setTitle(View v, String title){
+        ((TextView)v.findViewById(R.id.dialog_title)).setText(title);
     }
 
     @Override

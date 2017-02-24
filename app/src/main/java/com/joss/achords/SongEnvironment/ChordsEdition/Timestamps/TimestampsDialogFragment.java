@@ -2,6 +2,7 @@ package com.joss.achords.SongEnvironment.ChordsEdition.Timestamps;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,19 +58,29 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_timestamps_dialog, container, false);
 
-        text = (TextView) v.findViewById(R.id.timestamps_text);
-        next = (TextView) v.findViewById(R.id.next_line);
+        findViews(v);
+        setViews();
+
         if (mSong.getLyrics().isEmpty()) {
             Toast.makeText(mContext, "No lyrics in the song...", Toast.LENGTH_LONG).show();
             dismiss();
         }
 
-        next.setText(mSong.getLyrics().get(0).getText());
-
         setDialogButtons(v);
+        setTitle(v, mContext.getResources().getString(R.string.timestamps_dialog_title));
 
         return v;
     }
+
+    public void findViews(View v){
+        text = (TextView) v.findViewById(R.id.timestamps_text);
+        next = (TextView) v.findViewById(R.id.next_line);
+    }
+
+    public void setViews(){
+        next.setText(mSong.getLyrics().get(0).getText());
+    }
+
 
     @Override
     public void onClick(View v){
@@ -79,32 +90,33 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
                 if (!recording) {
                     recording = true;
                     previousClick = System.currentTimeMillis();
-                    ok_button.setText("OK");
-                    text.setText(mSong.getLyrics().get(0).getText());
+                    ok_button.setText(R.string.ok);
+                    text.setText(mSong.getLyrics().get(mCurrentLine).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine).getText());
                     if (mCurrentLine + 1 < mSong.getLyrics().size()) {
-                        next.setText(mSong.getLyrics().get(mCurrentLine + 1).getText());
+                        next.setText(mSong.getLyrics().get(mCurrentLine+1).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine+1).getText());
                     } else {
-                        next.setText("Click finish to save");
+                        next.setText(R.string.end_timestamps);
                     }
                 } else if (mCurrentLine <= mEditedSong.getLyrics().size() - 1) {
                     mEditedSong.getLyrics().get(mCurrentLine).setDuration((int) (System.currentTimeMillis() - previousClick));
+                    Log.d("TIMESTAMPS", "Duration recorded: "+mEditedSong.getLyrics().get(mCurrentLine).getDuration());
                     previousClick = System.currentTimeMillis();
                     mCurrentLine++;
                     if (mCurrentLine < mSong.getLyrics().size()) {
                         text.setText(mEditedSong.getLyrics().get(mCurrentLine).getText());
                     } else {
-                        text.setText("Click finish to save");
+                        text.setText(R.string.end_timestamps);
                         next.setText("");
                     }
                     if (mCurrentLine + 1 < mSong.getLyrics().size()) {
-                        next.setText(mSong.getLyrics().get(mCurrentLine + 1).getText());
+                        next.setText(mSong.getLyrics().get(mCurrentLine+1).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine+1).getText());
                     } else {
-                        next.setText("Click finish to save");
+                        next.setText(R.string.end_timestamps);
                     }
                 }
 
                 if (mCurrentLine == mEditedSong.getLyrics().size() - 1) {
-                    ((Button) v).setText("FINISH");
+                    ((Button) v).setText(R.string.finish);
                 }
 
                 if (mCurrentLine >= mEditedSong.getLyrics().size()) {

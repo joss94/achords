@@ -3,27 +3,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <!--<Button
-        android:id="@+id/button"
-        android:layout_width="@dimen/round_button_size"
-        android:layout_height="@dimen/round_button_size"
-        android:background="@drawable/round_button_shape"
-        android:layout_centerInParent="true"
-        android:layout_marginStart="@dimen/round_button_margin"
-        android:layout_marginEnd="@dimen/round_button_margin"
-        android:layout_marginBottom="@dimen/round_button_margin"
-        android:elevation="5dp"/>
-
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Am"
-        android:textColor="@android:color/white"
-        android:layout_centerInParent="true"
-        android:textSize="20sp"
-        android:elevation="5dp"/>-->
-
     <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
         android:id="@+id/button"
         android:layout_width="@dimen/round_button_size"

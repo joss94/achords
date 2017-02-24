@@ -45,6 +45,7 @@ public class URLDialogFragment extends AbstractDialogFragment {
         urlEdit = (EditText)v.findViewById(R.id.url);
 
         setDialogButtons(v);
+        setTitle(v, getContext().getResources().getString(R.string.url_dialog_title));
 
         return v;
     }

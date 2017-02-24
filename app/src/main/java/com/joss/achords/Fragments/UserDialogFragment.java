@@ -40,6 +40,7 @@ public class UserDialogFragment extends AbstractDialogFragment {
         v = inflater.inflate(R.layout.fragment_user_dialog, container, false);
 
         setDialogButtons(v);
+        setTitle(v, getContext().getResources().getString(R.string.user_dialog_title));
 
         return v;
     }

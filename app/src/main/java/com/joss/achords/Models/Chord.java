@@ -77,7 +77,10 @@ public class Chord implements Serializable{
     }
 
     public void setNote(int note) {
-        this.note = note;
+        this.note = note%scale.size();
+        if(this.note<0){
+            this.note += scale.size();
+        }
     }
 
     public int getMode() {

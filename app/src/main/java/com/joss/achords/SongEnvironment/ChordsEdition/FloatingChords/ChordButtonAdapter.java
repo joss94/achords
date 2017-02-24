@@ -86,7 +86,6 @@ public class ChordButtonAdapter extends RecyclerView.Adapter<ChordButtonAdapter.
 
     @Override
     public int getItemCount() {
-        Log.d("ADAPTER", "getItemCount called and returned : "+ (chords.isEmpty()?0:chords.size()));
         return (chords.isEmpty()?0:chords.size());
     }
 

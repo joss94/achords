@@ -2,6 +2,7 @@ package com.joss.achords.SongEnvironment.ChordsEdition.Timestamps;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ public class TimestampsActivity extends AbstractParentActivity {
 
                 else if(mCurrentLine<=mEditedSong.getLyrics().size()-1){
                     mEditedSong.getLyrics().get(mCurrentLine).setDuration((int)(System.currentTimeMillis()- previousClick));
+                    Log.d("TIMESTAMPS", "Duration recorded: "+mEditedSong.getLyrics().get(mCurrentLine).getDuration());
                     previousClick = System.currentTimeMillis();
                     mCurrentLine++;
                     if(mCurrentLine<mSong.getLyrics().size()){

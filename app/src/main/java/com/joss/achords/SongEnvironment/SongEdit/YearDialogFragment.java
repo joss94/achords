@@ -13,7 +13,7 @@ import com.joss.achords.R;
 
 import java.util.Calendar;
 
-/**
+/*
  * Created by Joss on 21/12/2016.
  */
 
@@ -36,6 +36,7 @@ public class YearDialogFragment extends AbstractDialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mCurrentYear=getArguments().getInt(EXTRA_DATE);
     }
 
     @Override
@@ -43,17 +44,22 @@ public class YearDialogFragment extends AbstractDialogFragment {
                               Bundle savedInstanceState){
 
         View yearPickerView = getActivity().getLayoutInflater().inflate(R.layout.date_dialog, null);
+        findViews(yearPickerView);
+        setViews();
+        setDialogButtons(yearPickerView);
+        setTitle(yearPickerView, getContext().getResources().getString(R.string.year_dialog_title));
+        return yearPickerView;
+    }
 
-        mCurrentYear=getArguments().getInt(EXTRA_DATE);
-        mNumberPicker=(NumberPicker)yearPickerView.findViewById(R.id.year_number_picker);
+    public void findViews(View v){
+        mNumberPicker=(NumberPicker)v.findViewById(R.id.year_number_picker);
+    }
+
+    public void setViews(){
         mNumberPicker.setMinValue(1900);
         mNumberPicker.setMaxValue(Calendar.getInstance().get(Calendar.YEAR));
         mNumberPicker.setWrapSelectorWheel(false);
         mNumberPicker.setValue(mCurrentYear);
-
-        setDialogButtons(yearPickerView);
-
-        return yearPickerView;
     }
 
     @Override

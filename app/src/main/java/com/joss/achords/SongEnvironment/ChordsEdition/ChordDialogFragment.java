@@ -42,9 +42,22 @@ public class ChordDialogFragment extends AbstractDialogFragment {
     public View onCreateView (LayoutInflater inflater, ViewGroup container,
                               Bundle savedInstanceState){
         View chordPickerView = getActivity().getLayoutInflater().inflate(R.layout.fragment_chord_dialog, null);
+        findViews(chordPickerView);
+        setViews();
 
+        setDialogButtons(chordPickerView);
+        setTitle(chordPickerView, getString(R.string.chord_dialog_title));
+
+        return chordPickerView;
+    }
+
+    public void findViews(View v){
+        mNoteSpinner = (Spinner)v.findViewById(R.id.note_spinner);
+        mModeSpinner = (Spinner)v.findViewById(R.id.mode_spinner);
+    }
+
+    public void setViews(){
         //<editor-fold desc="NOTE SPINNER">
-        mNoteSpinner = (Spinner)chordPickerView.findViewById(R.id.note_spinner);
         ArrayAdapter<String> noteAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Chord.invertedScale);
         noteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mNoteSpinner.setAdapter(noteAdapter);
@@ -63,7 +76,6 @@ public class ChordDialogFragment extends AbstractDialogFragment {
         //</editor-fold>
 
         //<editor-fold desc="MODE SPINNER">
-        mModeSpinner = (Spinner)chordPickerView.findViewById(R.id.mode_spinner);
         ArrayAdapter<String> modeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Chord.modesDisplay);
         modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mModeSpinner.setAdapter(modeAdapter);
@@ -78,12 +90,15 @@ public class ChordDialogFragment extends AbstractDialogFragment {
                 mCurrentMode=0;
             }
         });
-        mModeSpinner.setSelection(getArguments().getInt(EXTRA_CHORD_MODE));
+        if(getArguments().getInt(EXTRA_CHORD_MODE)==-1){
+            mModeSpinner.setSelection(0);
+            mModeSpinner.setEnabled(false);
+            mModeSpinner.setVisibility(View.GONE);
+        }else{
+            mModeSpinner.setSelection(getArguments().getInt(EXTRA_CHORD_MODE));
+        }
+
         //</editor-fold>
-
-        setDialogButtons(chordPickerView);
-
-        return chordPickerView;
     }
 
     @Override

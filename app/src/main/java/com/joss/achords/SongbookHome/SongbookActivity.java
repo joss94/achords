@@ -7,12 +7,19 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.joss.achords.AbstractParentActivity;
+import com.joss.achords.AchordsTypefaces;
+import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.SelectAdapter.OnAdapterSelectModeChangeListener;
 import com.joss.achords.OnItemClickListener;
 import com.joss.achords.SongEnvironment.SongActivity;
@@ -28,8 +35,9 @@ public class SongbookActivity extends AbstractParentActivity implements Songbook
 
     private SongAdapter adapter;
     private RecyclerView recyclerView;
+    private EditText editSearch;
 
-    private boolean selectMode=false;
+    private ImageView deleteBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +45,10 @@ public class SongbookActivity extends AbstractParentActivity implements Songbook
         setContentView(R.layout.activity_songbook);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
+        ((TextView)toolbar.findViewById(R.id.title)).setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
         setSupportActionBar(toolbar);
+        setToolbarPadding(toolbar);
+        configOverflowMenu(toolbar);
         toolbar.showOverflowMenu();
 
 
@@ -54,6 +65,24 @@ public class SongbookActivity extends AbstractParentActivity implements Songbook
             }
         });
 
+        deleteBtn =(ImageView)findViewById(R.id.delete_btn);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConfirmDeleteDialogFragment fr = ConfirmDeleteDialogFragment.newInstance();
+                fr.setOnFragmentInteractionListener(new OnDialogFragmentInteractionListener() {
+                    @Override
+                    public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
+                        if(requestCode==ConfirmDeleteDialogFragment.DELETE_SONG_CONFIRM_REQUEST_CODE && resultCode == RESULT_OK){
+                            deleteSelected();
+                            adapter.resetSelected();
+                        }
+                    }
+                });
+                fr.show(getSupportFragmentManager(), "DELETE_CONFIRM");
+            }
+        });
+
         Songbook.get(this).setOnSongbookChangeListener(this);
 
         //Set the adapter
@@ -65,18 +94,24 @@ public class SongbookActivity extends AbstractParentActivity implements Songbook
         recyclerView = (RecyclerView) findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        super.onOptionsItemSelected(item);
-        switch (item.getItemId()){
-            case R.id.delete_menu:
-                deleteSelected();
-                adapter.resetSelected();
-                break;
-        }
-        return false;
+        editSearch = (EditText)findViewById(R.id.edit_search);
+        editSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                adapter.getFilter().filter(s.toString());
+            }
+        });
     }
 
     @Override
@@ -88,16 +123,15 @@ public class SongbookActivity extends AbstractParentActivity implements Songbook
         for(Song song : adapter.getSelected()){
             Songbook.get(this).deleteSong(song.getId());
         }
+
     }
 
     @Override
     public void onAdapterSelectModeChange(boolean selectMode) {
         if(selectMode){
-            menu.add(Menu.NONE, R.id.delete_menu, Menu.NONE, "Delete")
-                    .setIcon(R.drawable.ic_delete)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            deleteBtn.setVisibility(View.VISIBLE);
         } else {
-            menu.removeItem(R.id.delete_menu);
+            deleteBtn.setVisibility(View.GONE);
         }
     }
 

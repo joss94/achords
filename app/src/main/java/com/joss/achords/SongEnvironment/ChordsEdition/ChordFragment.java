@@ -13,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +44,7 @@ import com.joss.achords.SongEnvironment.ChordsEdition.Timestamps.TimestampsDialo
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -55,27 +58,26 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     private static final String EXTRA_SONG_ID = "song_id";
     private static final String EXTRA_CHORD = "chord";
 
-    private final double cursorPadding = 50;
-
     private Song mSong;
     private Song mEditedSong;
     private UUID mSongID;
     private Lyrics mLyrics;
-    private LinearLayout mLayout;
+    private LinearLayout mLyricsLayout;
     private int mCurrentLine=0;
     private int mCurrentIndex;
     private Chord mCurrentChord;
     private Context mContext;
-    private ImageButton mSetTimestampsButton;
-    private ChordButton mAddChordButton;
-    private TextView mSongTitleTextView;
-    private TextView mSongArtistDateTextView;
+    private ImageButton mAddChordButton;
     private List<EditTextChords> mLyricsLineViews;
     private ChordButtonAdapter mRecentChordsAdapter;
-    private RecyclerView mRecentChords;
     private ScrollView mScrollView;
+    private RecyclerView mRecentChords;
+    private TextView mCapo;
+    private ImageButton mSetTimestampsButton;
     private RelativeLayout chordBin;
-    boolean chordInBin=false;
+    private boolean chordInBin=false;
+
+    private int cursorOffset;
 
     public ChordFragment() {
 
@@ -93,6 +95,8 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        cursorOffset = 100;
+
         mLyricsLineViews = new ArrayList<>();
 
         Songbook.get(getActivity()).setOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
@@ -106,6 +110,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         mSong = Songbook.get(getActivity()).getById(mSongID);
         mEditedSong=mSong.copy();
         mLyrics=mEditedSong.getLyrics();
+        mCurrentChord = new Chord();
     }
 
     @Override
@@ -121,68 +126,55 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
         View v =inflater.inflate(R.layout.fragment_chord, container, false);
 
-        //<editor-fold desc="FIND AND SET BUTTONS">
-        mAddChordButton = (ChordButton)v.findViewById(R.id.add_chord_button);
-        mAddChordButton.setOnClickListener(this);
-        mSetTimestampsButton = (ImageButton)v.findViewById(R.id.set_timestamps_button);
-        ((GradientDrawable)mSetTimestampsButton.getBackground()).setColor(getResources().getColor(R.color.DarkBlue));
-        //</editor-fold>
-
-        //<editor-fold desc="FIND AND SET TITLES">
-        mSongTitleTextView=(TextView)v.findViewById(R.id.chords_song_title);
-        mSongTitleTextView.setText(mSong.getName());
-        mSongArtistDateTextView = (TextView)v.findViewById(R.id.chords_artist_date);
-        String artist;
-        if(mSong.getArtist()==null || mSong.getArtist().isEmpty()){
-            artist = "Unknown";
-        }
-        else{
-            artist = mSong.getArtist();
-        }
-        String date = (mSong.getReleaseYear()==0)?"":(" - "+String.valueOf(mSong.getReleaseYear()));
-        mSongArtistDateTextView.setText(String.format(getString(R.string.artist_display_title),artist, date));
-        //</editor-fold>
-
-        mRecentChordsAdapter = new ChordButtonAdapter(mContext, new ArrayList<Chord>(), this);
-        mRecentChords = (RecyclerView)v.findViewById(R.id.recent_chords);
-        mRecentChords.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecentChords.setAdapter(mRecentChordsAdapter);
-
-        mLayout = (LinearLayout)v.findViewById(R.id.chord_lyrics);
-
-        mCurrentChord = new Chord();
-        updateAddChordButton(mCurrentChord);
-        displayLyrics();
-
-        mAddChordButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                chooseChord();
-                return true;
-            }
-        });
-
-        mScrollView = (ScrollView)v.findViewById(R.id.scroll_view);
-        mScrollView.setOnDragListener(this);
-
-        chordBin = (RelativeLayout)v.findViewById(R.id.chord_bin);
+        findViews(v);
+        setViews();
+        setActions();
 
         return v;
     }
 
+    public void findViews(View v){
+        mAddChordButton = (ImageButton)v.findViewById(R.id.add_chord_button);
+        mSetTimestampsButton = (ImageButton) v.findViewById(R.id.set_timestamps_button);
+        mRecentChords = (RecyclerView) v.findViewById(R.id.recent_chords);
+        mLyricsLayout = (LinearLayout)v.findViewById(R.id.chord_lyrics);
+        mScrollView = (ScrollView)v.findViewById(R.id.scroll_view);
+        chordBin = (RelativeLayout)v.findViewById(R.id.chord_bin);
+        mCapo = (TextView) v.findViewById(R.id.display_capo);
+    }
+
+    @SuppressWarnings("deprecation")
+    public void setViews(){
+        ((GradientDrawable) mSetTimestampsButton.getBackground()).setColor(mContext.getResources().getColor(R.color.colorPrimary));
+        mCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), mSong.getCapo()));
+
+        displayLyrics();
+    }
+
+    public void setActions(){
+        mAddChordButton.setOnClickListener(this);
+        mSetTimestampsButton.setOnClickListener(this);
+        mCapo.setOnClickListener(this);
+        mScrollView.setOnDragListener(this);
+
+        mRecentChordsAdapter = new ChordButtonAdapter(mContext, new ArrayList<Chord>(), this);
+        mRecentChords.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecentChords.setAdapter(mRecentChordsAdapter);
+
+    }
+
     private void displayLyrics(){
         //Clean everything
-        mLayout.removeAllViewsInLayout();
+        mLyricsLayout.removeAllViewsInLayout();
         mLyricsLineViews.clear();
 
         for (int i=0; i<mLyrics.size();i++){
-            final int lineNumber=i;
             final LyricsLine lyricsLine = mLyrics.get(i);
             //<editor-fold desc="CREATING LYRICS VIEWS">
-            final EditTextChords lineView = new EditTextChords(mContext, lineNumber);
+            final EditTextChords lineView = new EditTextChords(mContext, i);
             mLyricsLineViews.add(lineView);
             lineView.setId(i);
-            lineView.setTextSize(16);
+            lineView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimension(R.dimen.size_lyrics));
             lineView.setBackground(null);
             lineView.setPadding(0,0,0,0);
             lineView.setInputType(InputType.TYPE_CLASS_TEXT |
@@ -208,9 +200,9 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             lineView.setText(spannable, TextView.BufferType.SPANNABLE);
             //</editor-fold>
 
-            mLayout.addView(lineView, new LinearLayout.LayoutParams(
+            mLyricsLayout.addView(lineView, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            mLayout.invalidate();
+            mLyricsLayout.invalidate();
         //</editor-fold>
         }
     }
@@ -220,66 +212,23 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         mEditedSong=mSong.copy();
         mLyrics=mEditedSong.getLyrics();
 
-        mSongTitleTextView.setText(mSong.getName());
-        String artist;
-        if(mSong.getArtist()==null || mSong.getArtist().isEmpty()){
-            artist = "Unknown";
-        }
-        else{
-            artist = mSong.getArtist();
-        }
-        String date = (mSong.getReleaseYear()==0)?"":(" - "+String.valueOf(mSong.getReleaseYear()));
-        mSongArtistDateTextView.setText(String.format(mContext.getString(R.string.artist_display_title),artist, date));
-        displayLyrics();
-    }
-
-    public void chooseChord(){
-        ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mCurrentChord.getNote(), mCurrentChord.getMode());
-        chooseChordFragment.setOnFragmentInteractionListener(this);
-        chooseChordFragment.show(getFragmentManager(), "CHORD");
-
+        setViews();
     }
 
     public void addChord(){
         if(!mLyricsLineViews.get(mCurrentLine).hasFocus()){
-            Toast.makeText(getContext(), "Cursor not focused", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.cursor_not_focused, Toast.LENGTH_SHORT).show();
             return;
         }
-        boolean existsChord=false;
-        ArrayList<Chord> chordsInLine = mLyrics.get(mCurrentLine).getChords();
-        for(int i=0; i<chordsInLine.size(); i++){
-            Chord chord = chordsInLine.get(i);
-            if(Math.abs(chord.getPosition()-mCurrentIndex)<=Chord.CHORD_MARGIN){
-                Toast.makeText(getActivity(), "There is already a chord here...", Toast.LENGTH_SHORT).show();
-                existsChord=true;
-            }
-        }
-        if(mLyrics.get(mCurrentLine).getText().isEmpty()){
-            Toast.makeText(getActivity(), "Can't add a chord to an empty line", Toast.LENGTH_SHORT).show();
-        }
-        else if(!existsChord){
-            mCurrentChord.setPosition(mCurrentIndex);
-            mLyrics.get(mCurrentLine).addChord(mCurrentChord);
+
+        String result = mEditedSong.addChord(mCurrentChord, mCurrentLine, mCurrentIndex);
+        if(result.equals("success")){
             mRecentChordsAdapter.addChord(mCurrentChord);
         }
-        Songbook.get(getActivity()).updateSong(mEditedSong);
-        //((Refreshable)getActivity()).refresh();
-    }
-
-    public void deleteChord(){
-        ArrayList<Chord> chordsInLine = mLyrics.get(mCurrentLine).getChords();
-        for(int i=0;i<chordsInLine.size();i++){
-            Chord chord = chordsInLine.get(i);
-            if(Math.abs(chord.getPosition()-mCurrentIndex)<=3){
-                mLyrics.get(mCurrentLine).getChords().remove(chord);
-            }
+        else {
+            Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
         }
         Songbook.get(getActivity()).updateSong(mEditedSong);
-    }
-
-    public void updateAddChordButton(Chord chord){
-        mCurrentChord = chord;
-        mAddChordButton.setChord(mCurrentChord);
     }
 
     public void changeID(UUID id){
@@ -288,15 +237,15 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     }
 
     public int getFocusedLine(float y){
-        y=y-(float)cursorPadding;
+        y=y-(float) cursorOffset;
         int i=0;
-        while(i<mLayout.getChildCount() && (mLayout.getChildAt(i).getTop()+mLayout.getTop()+mScrollView.getPaddingTop()-mScrollView.getScrollY()<y)){
+        while(i< mLyricsLayout.getChildCount() && (mLyricsLayout.getChildAt(i).getTop()+ mLyricsLayout.getTop()+mScrollView.getChildAt(0).getTop()-mScrollView.getScrollY()<y)){
             i++;
         }
-        if(y<mLayout.getChildAt(mLayout.getChildCount()-1).getBottom()+mLayout.getTop()+mScrollView.getPaddingTop()-mScrollView.getScrollY()){
+        if(y< mLyricsLayout.getChildAt(mLyricsLayout.getChildCount()-1).getBottom()+ mLyricsLayout.getTop()+mScrollView.getChildAt(0).getTop()-mScrollView.getScrollY()){
             i=i-1;
         }
-        return Math.max(i-1,0);
+        return Math.max(i,0);
     }
 
     @Override
@@ -309,19 +258,28 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
     @Override
     public void onDoubleTap(int lineNumber, int index) {
-        deleteChord();
+        mEditedSong.deleteChord(mCurrentLine, mCurrentIndex);
+        Songbook.get(getActivity()).updateSong(mEditedSong);
     }
 
     @Override
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.add_chord_button:
-                addChord();
+                ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mCurrentChord.getNote(), mCurrentChord.getMode());
+                chooseChordFragment.setOnFragmentInteractionListener(this);
+                chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
                 break;
 
             case R.id.set_timestamps_button:
                 TimestampsDialogFragment fr = TimestampsDialogFragment.newInstance(mSong.getId());
-                fr.show(getFragmentManager(), "TIMESTAMPS");
+                fr.show(getFragmentManager(), mContext.getString(R.string.timestamps_dialog_title));
+                break;
+
+            case R.id.display_capo:
+                CapoDialogFragment capoFragment = CapoDialogFragment.newInstance(mEditedSong.getCapo());
+                capoFragment.setOnFragmentInteractionListener(this);
+                capoFragment.show(getFragmentManager(), mContext.getString(R.string.capo_dialog_fragment));
                 break;
 
             default:
@@ -331,7 +289,6 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
     @Override
     public void onChordButtonClicked(Chord chord) {
-        updateAddChordButton(chord);
         addChord();
     }
 
@@ -344,9 +301,11 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         ClipData dragData = new ClipData(v.toString(), new String[] {},item);
 
         View.DragShadowBuilder chordShadow = new ChordDragShadowBuilder(v);
+        //noinspection deprecation
         v.startDrag(dragData, chordShadow, null, 0);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean onDrag(View v, DragEvent event) {
         final int action = event.getAction();
@@ -358,15 +317,22 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
 
             case DragEvent.ACTION_DRAG_LOCATION:
-                if(event.getY()-mScrollView.getScrollY()<chordBin.getBottom()){
-                    chordBin.setBackgroundColor(getResources().getColor(R.color.transparent_black_dark));
+
+                if(event.getY()<chordBin.getBottom()){
+                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black_dark));
                     chordInBin = true;
                 } else{
+                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
+                    chordInBin = false;
                     int index = getFocusedLine(event.getY());
-                    v = mLayout.getChildAt(index);
+
+                    v = mLyricsLayout.getChildAt(index);
                     if (v instanceof EditTextChords) {
                         v.requestFocus();
-                        ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX(), event.getY()));
+                        int[] vAbsolute = {0,0};
+                        v.getLocationOnScreen(vAbsolute);
+                        ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX(), event.getY()-vAbsolute[1]+cursorOffset));
+                        Log.d("CHORD", "blabla= "+(event.getY()-vAbsolute[1]+cursorOffset));
                     }
                 }
 
@@ -374,7 +340,8 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
             case DragEvent.ACTION_DRAG_EXITED:
                 if(chordInBin){
-                    chordBin.setBackgroundColor(getResources().getColor(R.color.transparent_black));
+                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
+                    chordInBin = false;
                 }
                 return true;
 
@@ -385,10 +352,15 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
                     mCurrentChord = (Chord)dragdata.getSerializableExtra(EXTRA_CHORD);
                     addChord();
                 }
+                chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
+                chordInBin = false;
                 chordBin.setVisibility(View.GONE);
                 return true;
 
             case DragEvent.ACTION_DRAG_ENDED:
+                chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
+                chordInBin = false;
+                chordBin.setVisibility(View.GONE);
                 return true;
 
             default:
@@ -403,8 +375,16 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         switch(requestCode){
             case ChordDialogFragment.SELECT_CHORD_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
-                    Chord newChord = (Chord)args[0];
-                    updateAddChordButton(newChord);
+                    mCurrentChord = (Chord)args[0];
+                    addChord();
+                }
+                break;
+
+            case CapoDialogFragment.CAPO_REQUEST_CODE:
+                if(resultCode==AppCompatActivity.RESULT_OK){
+                    mEditedSong.setCapo((int)args[0]);
+                    mCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), (int)args[0]));
+                    Songbook.get(getActivity()).updateSong(mEditedSong);
                 }
                 break;
         }

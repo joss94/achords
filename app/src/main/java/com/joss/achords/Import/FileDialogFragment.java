@@ -77,6 +77,7 @@ public class FileDialogFragment extends AbstractDialogFragment implements OnItem
         adapter.setSelectionUnique(true);
 
         setDialogButtons(v);
+        setTitle(v, getContext().getResources().getString(R.string.import_dialog_title));
 
         return v;
     }

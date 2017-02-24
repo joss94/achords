@@ -6,7 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.joss.achords.Database.DbContract;
 import com.joss.achords.Database.SongsDbHelper;
@@ -26,18 +25,16 @@ import java.util.UUID;
 
 public class Songbook {
     public static final String EXPORT_FORMAT_JSON = "json";
-    public static final String EXPORT_FORMAT_TEXT = "text";
     public static final String IMPORT_OPTION_ADD = "Add";
-    public static final String IMPORT_OPTION_REPLACE = "Replace";
+    private static final String IMPORT_OPTION_REPLACE = "Replace";
 
     public static final String EXPORT_FORMAT_JSON_TOKEN="IE876RTEZ87YGDSD67";
 
     public interface OnSongbookChangeListener{
-        public void onDBChange();
+        void onDBChange();
     }
 
     private static Songbook songbook;
-    private Context mContext;
     private ArrayList<Song> mSongs;
     private SQLiteDatabase db;
     private SongsDbHelper dbHelper;
@@ -47,8 +44,7 @@ public class Songbook {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
 
     private Songbook(Context context)  {
-        this.mContext = context;
-        dbHelper = new SongsDbHelper(mContext);
+        dbHelper = new SongsDbHelper(context);
         loadDB();
         readDB();
     }
@@ -71,6 +67,7 @@ public class Songbook {
         row.put(DbContract.DbSongs.COLUMN_NAME_EDITOR, song.getEditor());
         row.put(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR, song.getReleaseYear());
         row.put(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE, sdf.format(song.getLastEditionDate()));
+        row.put(DbContract.DbSongs.COLUMN_NAME_CAPO, song.getCapo());
         try {
             row.put(DbContract.DbSongs.COLUMN_NAME_LYRICS, song.getLyrics().ToJSON().toString());
         } catch (JSONException e) {
@@ -94,6 +91,7 @@ public class Songbook {
         row.put(DbContract.DbSongs.COLUMN_NAME_EDITOR, song.getEditor());
         row.put(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR, song.getReleaseYear());
         row.put(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE, sdf.format(song.getLastEditionDate()));
+        row.put(DbContract.DbSongs.COLUMN_NAME_CAPO, song.getCapo());
         try {
             row.put(DbContract.DbSongs.COLUMN_NAME_LYRICS, song.getLyrics().ToJSON().toString());
         } catch (JSONException e) {
@@ -117,8 +115,8 @@ public class Songbook {
         }
     }
 
-    public ArrayList<String> getNames (){
-        ArrayList<String> names = new ArrayList<String>();
+    private ArrayList<String> getNames(){
+        ArrayList<String> names = new ArrayList<>();
         for (Song song : mSongs){
             names.add(song.getName());
         }
@@ -159,11 +157,11 @@ public class Songbook {
         return mSongs;
     }
 
-    public void loadDB(){
+    private void loadDB(){
         db = dbHelper.getWritableDatabase();
     }
 
-    public ArrayList<Song> readDB()  {
+    private ArrayList<Song> readDB()  {
         mSongs=new ArrayList<>();
         Cursor r = db.query (DbContract.DbSongs.TABLE_NAME,
                 null,
@@ -179,6 +177,7 @@ public class Songbook {
             song.setArtist(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_ARTIST)));
             song.setEditor(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_EDITOR)));
             song.setReleaseYear(r.getInt(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR)));
+            song.setCapo(r.getInt(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_CAPO)));
             try {
                 song.setLastEditionDate(sdf.parse(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE))));
             } catch (ParseException e) {
@@ -192,7 +191,7 @@ public class Songbook {
 
             mSongs.add(song);
         }
-
+        r.close();
         return mSongs;
     }
 
@@ -238,14 +237,13 @@ public class Songbook {
             }
 
         } catch (JSONException e) {
-            Toast.makeText(mContext, "Invalid format !!", Toast.LENGTH_LONG).show();
             return false;
         }
 
         return true;
     }
 
-    public String readJSONFile(File file)  {
+    private String readJSONFile(File file)  {
         String r="";
         try{
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -257,20 +255,16 @@ public class Songbook {
             }
             br.close();
         }
-        catch (IOException e){
-
-        }
+        catch (IOException ignored){}
         return r;
     }
 
-    public boolean checkJSONFile(File file)  {
+    private boolean checkJSONFile(File file)  {
         try{
             BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
             return(br.readLine().equals(EXPORT_FORMAT_JSON_TOKEN));
         }
-        catch (IOException e){
-        }
+        catch (IOException ignored){}
         return false;
     }
 

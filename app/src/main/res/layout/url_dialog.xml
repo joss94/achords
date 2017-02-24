@@ -3,20 +3,31 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/url_descriptor"
-        android:layout_width="match_parent"
+    <include layout="@layout/dialog_title"/>
+
+    <LinearLayout
         android:layout_height="wrap_content"
-        android:text="@string/url"
-        style="@style/editionDescriptorStyle"/>
-    <EditText
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="top"
-        android:id="@+id/url"
-        android:padding="5dp"
-        android:maxLines="1"
-        />
+        android:orientation="vertical"
+        android:padding="@dimen/activity_horizontal_margin">
+
+        <TextView
+            android:id="@+id/url_descriptor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/url"
+            style="@style/editionDescriptorStyle" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:id="@+id/url"
+            android:padding="5dp"
+            android:maxLines="1"
+            android:background="@null"/>
+    </LinearLayout>
+
 
     <include layout="@layout/dialog_buttons"/>
 

@@ -6,6 +6,8 @@
     android:layout_gravity="center"
     tools:context=".SongEnvironment.ChordsEdition.ChordDialogFragment">
 
+    <include layout="@layout/dialog_title"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

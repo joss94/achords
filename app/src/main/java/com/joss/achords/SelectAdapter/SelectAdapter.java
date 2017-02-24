@@ -11,7 +11,7 @@ import com.joss.achords.OnItemClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Created by joss on 09/02/17.
  */
 
@@ -20,16 +20,14 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<RecyclerView
     protected List<Integer> selected = new ArrayList<>();
     protected List<T> items = new ArrayList<>();
     protected OnAdapterSelectModeChangeListener listener;
-    protected OnItemClickListener clickListener;
-    protected boolean selectMode;
-    protected SelectAdapter adapter;
-    protected boolean selectionUnique;
+    private OnItemClickListener clickListener;
+    private boolean selectMode;
+    private boolean selectionUnique;
 
     protected SelectAdapter(List<T> items) {
         selected = new ArrayList<>();
         this.items = items;
         selectMode = false;
-        adapter = this;
         selectionUnique = false;
     }
 

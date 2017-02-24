@@ -42,6 +42,7 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
         View v = inflater.inflate(R.layout.fragment_export_email, container, false);
         emailEditText = (EditText)v.findViewById(R.id.export_email);
         setDialogButtons(v);
+        setTitle(v, getContext().getResources().getString(R.string.exporting));
         return v;
     }
 

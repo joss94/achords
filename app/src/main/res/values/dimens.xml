@@ -9,6 +9,12 @@
 
     <dimen name="size_title_big">32sp</dimen>
     <dimen name="size_title_normal">16sp</dimen>
+    <dimen name="size_songbook_song_title">18sp</dimen>
+    <dimen name="size_songbook_artist">13sp</dimen>
+    <dimen name="size_toolbar_song_title">20sp</dimen>
+    <dimen name="size_toolbar_artist">13sp</dimen>
+    <dimen name="size_lyrics">18sp</dimen>
+
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="round_button_size">56dp</dimen>
