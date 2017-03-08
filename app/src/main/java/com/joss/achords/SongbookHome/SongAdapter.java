@@ -1,16 +1,19 @@
 package com.joss.achords.SongbookHome;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.joss.achords.AchordsTypefaces;
 import com.joss.achords.Models.Song;
+import com.joss.achords.Models.Songbook;
+import com.joss.achords.Models.Songlist;
 import com.joss.achords.R;
 import com.joss.achords.SelectAdapter.SelectAdapter;
 
@@ -24,13 +27,16 @@ import java.util.List;
 public class SongAdapter extends SelectAdapter<Song> implements Filterable{
     private List<Song> songs;
     private List<Song> songsFiltered;
+    private Context context;
 
-    public SongAdapter(List<Song> songs) {
+    public SongAdapter(Context context, List<Song> songs) {
         super(songs);
         this.songs = new ArrayList<>();
         this.songsFiltered = new ArrayList<>();
         this.songs.addAll(songs);
         this.songsFiltered.addAll(songs);
+        this.context = context.getApplicationContext();
+        items = this.songs;
     }
 
     @Override
@@ -42,7 +48,7 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        Song song = songsFiltered.get(position);
+        final Song song = songsFiltered.get(position);
         ((SongViewHolder)holder).name.setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
         ((SongViewHolder)holder).name.setText(song.getName());
         ((SongViewHolder)holder).artist.setText(song.getArtist());
@@ -52,6 +58,18 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
         else{
             ((SongViewHolder) holder).separator.setVisibility(View.VISIBLE);
         }
+
+        ((SongViewHolder) holder).addToList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Songbook.get(context).getLists().get(0) == null){
+                    Songbook.get(context).getLists().add(new Songlist());
+                }
+                Songlist list = Songbook.get(context).getLists().get(0);
+                list.getSongsIds().add(song.getId());
+                Songbook.get(context).saveSonglists();
+            }
+        });
     }
 
     @Override
@@ -62,10 +80,8 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
     public void refresh(ArrayList<Song> songs){
         this.songs.clear();
         this.songsFiltered.clear();
-        for(Song song:songs){
-            this.songs.add(song);
-            this.songsFiltered.add(song);
-        }
+        this.songs.addAll(songs);
+        this.songsFiltered.addAll(songs);
         notifyDataSetChanged();
     }
 
@@ -108,6 +124,7 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
 
         TextView artist;
         TextView name;
+        ImageView addToList;
         View separator;
 
         public SongViewHolder(View itemView) {
@@ -115,6 +132,7 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
             artist = (TextView)itemView.findViewById(R.id.song_item_artist);
             name = (TextView)itemView.findViewById(R.id.song_item_title);
             separator = itemView.findViewById(R.id.song_item_separator);
+            addToList = (ImageView) itemView.findViewById(R.id.add_to_list);
         }
     }
 }

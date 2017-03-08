@@ -14,6 +14,7 @@ import static android.widget.ListPopupWindow.WRAP_CONTENT;
 public abstract class AbstractDialogFragment extends DialogFragment implements View.OnClickListener {
 
     protected OnDialogFragmentInteractionListener listener;
+    private int requestCode=0;
 
     public AbstractDialogFragment() {
         // Required empty public constructor
@@ -41,6 +42,13 @@ public abstract class AbstractDialogFragment extends DialogFragment implements V
         listener = null;
     }
 
+    public int getRequestCode() {
+        return requestCode;
+    }
+
+    public void setRequestCode(int requestCode) {
+        this.requestCode = requestCode;
+    }
 
     public void setDialogButtons(View v){
         super.onStart();

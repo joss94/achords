@@ -57,6 +57,8 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
     private static final String EXTRA_SONG_ID = "song_id";
     private static final String EXTRA_CHORD = "chord";
+    private static final int SELECT_CHORD_REQUEST_CODE = 1;
+    private static final int CAPO_REQUEST_CODE = 2;
 
     private Song mSong;
     private Song mEditedSong;
@@ -188,13 +190,13 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             final SpannableString spannable  = new SpannableString(lyricsLine.getText());
             for(Chord chord:lyricsLine.getChords()){
                 if(chord.getPosition()<spannable.length()){
-                    spannable.setSpan(new ChordSpan(chord), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 else if (chord.getPosition()>0){
-                    spannable.setSpan(new ChordSpan(chord), chord.getPosition()-1, chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition()-1, chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
                 else{
-                    spannable.setSpan(new ChordSpan(chord), chord.getPosition(), chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
             }
             lineView.setText(spannable, TextView.BufferType.SPANNABLE);
@@ -268,6 +270,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             case R.id.add_chord_button:
                 ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mCurrentChord.getNote(), mCurrentChord.getMode());
                 chooseChordFragment.setOnFragmentInteractionListener(this);
+                chooseChordFragment.setRequestCode(SELECT_CHORD_REQUEST_CODE);
                 chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
                 break;
 
@@ -279,6 +282,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             case R.id.display_capo:
                 CapoDialogFragment capoFragment = CapoDialogFragment.newInstance(mEditedSong.getCapo());
                 capoFragment.setOnFragmentInteractionListener(this);
+                capoFragment.setRequestCode(CAPO_REQUEST_CODE);
                 capoFragment.show(getFragmentManager(), mContext.getString(R.string.capo_dialog_fragment));
                 break;
 
@@ -331,8 +335,9 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
                         v.requestFocus();
                         int[] vAbsolute = {0,0};
                         v.getLocationOnScreen(vAbsolute);
-                        ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX(), event.getY()-vAbsolute[1]+cursorOffset));
-                        Log.d("CHORD", "blabla= "+(event.getY()-vAbsolute[1]+cursorOffset));
+                        ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX()-mScrollView.getPaddingStart(), event.getY()-vAbsolute[1]+cursorOffset));
+                        mCurrentLine = index;
+                        mCurrentIndex = ((EditTextChords) v).getSelectionStart();
                     }
                 }
 
@@ -373,14 +378,14 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     @Override
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
         switch(requestCode){
-            case ChordDialogFragment.SELECT_CHORD_REQUEST_CODE:
+            case SELECT_CHORD_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
                     mCurrentChord = (Chord)args[0];
                     addChord();
                 }
                 break;
 
-            case CapoDialogFragment.CAPO_REQUEST_CODE:
+            case CAPO_REQUEST_CODE:
                 if(resultCode==AppCompatActivity.RESULT_OK){
                     mEditedSong.setCapo((int)args[0]);
                     mCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), (int)args[0]));

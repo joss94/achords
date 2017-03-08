@@ -43,12 +43,15 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     public static final String USER_NAME = "user_name";
 
     public static final String EXTRA_SONG_ID="com.joss.achords.extra_song_id";
+    private static final int FILE_REQUEST_CODE = 1;
+    private static final int USER_REQUEST_CODE = 2;
+    private static final int EMAIL_REQUEST_CODE = 3;
 
     public static Typeface SONG_TITLE_TYPEFACE;
 
     private String mOption="";
     private User user;
-    private SharedPreferences sharedPreferences;
+    public SharedPreferences sharedPreferences;
     protected Menu menu;
 
     @Override
@@ -75,6 +78,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     protected void createNewUser(){
         UserDialogFragment fr = new UserDialogFragment();
         fr.setOnFragmentInteractionListener(this);
+        fr.setRequestCode(USER_REQUEST_CODE);
         fr.show(getSupportFragmentManager(), "USER");
     }
 
@@ -130,6 +134,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     private void selectFile(){
         FileDialogFragment fileDialog = FileDialogFragment.newInstance();
         fileDialog.setOnFragmentInteractionListener(this);
+        fileDialog.setRequestCode(FILE_REQUEST_CODE);
         fileDialog.show(this.getSupportFragmentManager(), "FILE");
     }
 
@@ -144,6 +149,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     private void selectEmail(){
         ExportEmailDialogFragment fr = ExportEmailDialogFragment.newInstance();
         fr.setOnFragmentInteractionListener(this);
+        fr.setRequestCode(EMAIL_REQUEST_CODE);
         fr.show(getSupportFragmentManager(), "EXPORT_EMAIL");
     }
 
@@ -186,7 +192,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     @Override
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args){
         switch (requestCode){
-            case FileDialogFragment.FILE_REQUEST_CODE:
+            case FILE_REQUEST_CODE:
                 //<editor-fold desc="HANDLE FILE CHOSEN">
                 if(resultCode == AppCompatActivity.RESULT_OK){
                     String path = (String) args[0];
@@ -202,7 +208,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                 //</editor-fold>
                 break;
 
-            case UserDialogFragment.USER_REQUEST_CODE:
+            case USER_REQUEST_CODE:
                 //<editor-fold desc="HANDLE USER CREATION">
                 if(resultCode==RESULT_OK){
                     String userName = (String)args[0];
@@ -214,7 +220,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                 //</editor-fold>
                 break;
 
-            case ExportEmailDialogFragment.EMAIL_REQUEST_CODE:
+            case EMAIL_REQUEST_CODE:
                 if(resultCode==RESULT_OK){
                     exportSongbook((String)args[0]);
                 }

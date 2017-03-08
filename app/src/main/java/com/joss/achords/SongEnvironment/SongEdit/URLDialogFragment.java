@@ -20,7 +20,6 @@ import java.util.Calendar;
 
 @TargetApi(15)
 public class URLDialogFragment extends AbstractDialogFragment {
-    public static final int URL_REQUEST_CODE = 4565;
 
     private EditText urlEdit;
 
@@ -52,7 +51,7 @@ public class URLDialogFragment extends AbstractDialogFragment {
 
     @Override
     public boolean callback(){
-        listener.onFragmentInteraction(URL_REQUEST_CODE, AppCompatActivity.RESULT_OK, urlEdit.getText().toString());
+        listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, urlEdit.getText().toString());
         return true;
     }
 }

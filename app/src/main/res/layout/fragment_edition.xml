@@ -107,6 +107,9 @@
                 android:minLines="10"
                 android:textIsSelectable="false"
                 />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="250dp"/>
 
         </LinearLayout>
 

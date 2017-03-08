@@ -16,8 +16,6 @@ import com.joss.achords.R;
 
 public class CapoDialogFragment extends AbstractDialogFragment {
 
-    public static final int CAPO_REQUEST_CODE = 68543;
-
     private int capo;
     private NumberPicker capoPicker;
 
@@ -59,7 +57,7 @@ public class CapoDialogFragment extends AbstractDialogFragment {
 
     @Override
     public boolean callback(){
-        listener.onFragmentInteraction(CAPO_REQUEST_CODE, AppCompatActivity.RESULT_OK, capoPicker.getValue());
+        listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, capoPicker.getValue());
         return true;
     }
 

@@ -19,4 +19,6 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="round_button_size">56dp</dimen>
     <dimen name="round_button_margin">20dp</dimen>
+
+    <dimen name="songbook_artist_header">56dp</dimen>
 </resources>

@@ -37,18 +37,15 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
 
 
 public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener {
+    private static final int URL_REQUEST_CODE = 1;
+    private static final int RELEASE_YEAR_REQUEST_CODE = 2;
     Song mSong;
     Song mEditedSong;
     EditText mEditionName;
@@ -201,6 +198,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public void askURL(){
         URLDialogFragment d = URLDialogFragment.newInstance();
         d.setOnFragmentInteractionListener(this);
+        d.setRequestCode(URL_REQUEST_CODE);
         d.show(getFragmentManager(), "URL");
     }
 
@@ -259,6 +257,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public void chooseDate(){
         YearDialogFragment d=YearDialogFragment.newInstance((mEditedSong.getReleaseYear()==0)?
                 Calendar.getInstance().get(Calendar.YEAR):mEditedSong.getReleaseYear());
+        d.setRequestCode(RELEASE_YEAR_REQUEST_CODE);
         d.setOnFragmentInteractionListener(this);
         d.show(getFragmentManager(), "DATE");
     }
@@ -337,15 +336,16 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
         Log.d("EDITION", "OnFragmentInteraction called");
         switch(requestCode){
-            case YearDialogFragment.RELEASE_YEAR_REQUEST_CODE:
+            case RELEASE_YEAR_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
                     int year = (int)args[0];
                     mEditionReleaseYear.setText(String.valueOf(year));
                     mEditionReleaseYear.setTextColor(getContext().getResources().getColor(android.R.color.black));
+                    mEditedSong.setReleaseYear(year);
                 }
                 break;
 
-            case URLDialogFragment.URL_REQUEST_CODE:
+            case URL_REQUEST_CODE:
                 if(resultCode== AppCompatActivity.RESULT_OK){
                     new LyricsLoader().execute((String)args[0]);
                 }
@@ -394,11 +394,11 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         Element artistElement = doc.select("a.mxm-track-title__artist").first();
         mEditionArtist.setText(((TextNode)artistElement.childNode(0)).getWholeText());
 
-        Element dateElement = doc.select("h3.mui-cell__subtitle").first();
+        /*Element dateElement = doc.select("h3.mui-cell__subtitle").first();
         String yearText = ((TextNode)dateElement.childNode(0)).getWholeText();
         yearText = yearText.substring(yearText.length()-4);
         mEditionReleaseYear.setText(yearText);
-        mEditionReleaseYear.setTextColor(getContext().getResources().getColor(android.R.color.black));
+        mEditionReleaseYear.setTextColor(getContext().getResources().getColor(android.R.color.black));*/
     }
 
     public void parseGoogleLyrics(Document doc){
@@ -417,8 +417,8 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         Element titleElement = doc.select("div.title.fade-out").first().child(0);
         mEditionName.setText(((TextNode)titleElement.childNode(0)).getWholeText());
 
-        Element artistElement = doc.select("div.album-artist.fade-out").first();
-        mEditionArtist.setText(((TextNode)artistElement.childNode(0)).getWholeText());
+        Element artistElement = (Element) doc.select("div.album-artist.fade-out").first().childNode(0);
+        mEditionArtist.setText(((TextNode)(artistElement.childNode(0))).getWholeText());
     }
 
     public class LyricsLoader extends AsyncTask<String, Void, Document>{

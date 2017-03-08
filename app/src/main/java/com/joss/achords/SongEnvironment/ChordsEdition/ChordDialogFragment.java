@@ -18,7 +18,6 @@ import com.joss.achords.R;
 public class ChordDialogFragment extends AbstractDialogFragment {
     public static final String EXTRA_CHORD_NOTE = "chord_note";
     public static final String EXTRA_CHORD_MODE = "chord_mode";
-    public static final int SELECT_CHORD_REQUEST_CODE = 3984;
 
     Spinner mNoteSpinner;
     Spinner mModeSpinner;
@@ -104,7 +103,7 @@ public class ChordDialogFragment extends AbstractDialogFragment {
     @Override
     public boolean callback(){
         Chord chord = new Chord(mCurrentNote, mCurrentMode, 0);
-        listener.onFragmentInteraction(SELECT_CHORD_REQUEST_CODE, AppCompatActivity.RESULT_OK, chord);
+        listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, chord);
         return true;
     }
 

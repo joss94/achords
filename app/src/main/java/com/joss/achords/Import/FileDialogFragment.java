@@ -26,7 +26,6 @@ import java.util.Arrays;
 public class FileDialogFragment extends AbstractDialogFragment implements OnItemClickListener {
 
     private static final String EXTRA_FILE = "Extra_file";
-    public static final int FILE_REQUEST_CODE = 985;
 
     private RecyclerView mRecyclerView;
     private File mPath;
@@ -142,7 +141,7 @@ public class FileDialogFragment extends AbstractDialogFragment implements OnItem
         }
         else {
             mChosenFilePath=selectedFile.getAbsolutePath();
-            listener.onFragmentInteraction(FILE_REQUEST_CODE, AppCompatActivity.RESULT_OK, mChosenFilePath);
+            listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, mChosenFilePath);
             return true;
         }
     }

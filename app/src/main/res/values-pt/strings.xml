@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="artist">Artista:</string>
+    <string name="artist_header_label">%1$d músicas de %2$s</string>
+    <string name="artist_header_label_one_song">%1$d música de %2$s</string>
+    <string name="artists">ARTISTAS</string>
+    <string name="capo">Capo: %d</string>
+    <string name="capo_dialog">Capo:</string>
+    <string name="capo_dialog_fragment">CAPO</string>
+    <string name="capo_dialog_title">Posição do capotraste</string>
+    <string name="change_tone_no_chords">Não é possiível mudar o tom, a cifra não tem acorde...</string>
+    <string name="chord_dialog_title">Escolha um acorde</string>
+    <string name="confirm_delete_dialog_title">Tem certeza ... ?</string>
+    <string name="cursor_not_focused">Cursor sem posição definida</string>
+    <string name="edition">Edição - %1$s</string>
+    <string name="edition_release_date_title">Data de produção:</string>
+    <string name="editor">Editor:</string>
+    <string name="email">Email:</string>
+    <string name="email_hint">E-mail para recepção do arquivo</string>
+    <string name="end_timestamps">Pressiona FINALIZAR para salvar</string>
+    <string name="exporting">Exportando o repertório</string>
+    <string name="finish">FINALIZAR</string>
+    <string name="import_dialog_title">Importando o repertório</string>
+    <string name="lists">MINHAS LISTAS</string>
+    <string name="lyrics">Letras:</string>
+    <string name="new_song">Nova música</string>
+    <string name="number_of_songs">Músicas: %d</string>
+    <string name="ok">OK</string>
+    <string name="release_date_hint">Seleciona uma data</string>
+    <string name="select_chord">ACORDE</string>
+    <string name="song_delete_warning">Tem certeza que você que você quer deletar essas músicas?</string>
+    <string name="songbook">Repertório</string>
+    <string name="songbook_edit_search_hint">Busca...</string>
+    <string name="songs">MÚSICAS</string>
+    <string name="timestamps_dialog_title">CALIBRAÇÃO</string>
+    <string name="title">Nome:</string>
+    <string name="title_activity_settings">Configurações</string>
+    <string name="undefined_timestamps">A calibração não está correta, por favor refaça-la</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="url">URL:</string>
+    <string name="url_dialog_title">Escolha o endereço do site</string>
+    <string name="user_dialog_title">Usuário</string>
+    <string name="year_dialog_title">Escolha um ano</string>
+</resources>

@@ -42,6 +42,7 @@ import java.util.UUID;
 
 
 public class DisplayFragment extends Fragment implements View.OnLongClickListener, OnDialogFragmentInteractionListener {
+    private static final int SELECT_CHORD_REQUEST_CODE = 1;
     private Song mSong;
     private TextView mDisplayCapo;
     private LinearLayout mDisplayLyricsLayout;
@@ -224,13 +225,13 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
                     Chord chord = realChord.copy();
                     chord.setNote(realChord.getNote()+toneOffset);
                     if(chord.getPosition()<spannable.length()-1){
-                        spannable.setSpan(new ChordSpan(chord), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     else if (chord.getPosition()>0){
-                        spannable.setSpan(new ChordSpan(chord), chord.getPosition()-1, chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition()-1, chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                     else{
-                        spannable.setSpan(new ChordSpan(chord), chord.getPosition(), chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
             }
@@ -352,6 +353,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
                 if (mSong.getFirstChord()!=null) {
                     ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mChordButton.getChord().getNote(), -1);
                     chooseChordFragment.setOnFragmentInteractionListener(this);
+                    chooseChordFragment.setRequestCode(SELECT_CHORD_REQUEST_CODE);
                     chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
                 } else {
                     Toast.makeText(getContext(), R.string.change_tone_no_chords, Toast.LENGTH_SHORT).show();
@@ -364,7 +366,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
     @Override
     public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
         switch(requestCode){
-            case ChordDialogFragment.SELECT_CHORD_REQUEST_CODE:
+            case SELECT_CHORD_REQUEST_CODE:
                 if(resultCode == AppCompatActivity.RESULT_OK){
                     Chord chord = (Chord)args[0];
                     int newNote = chord.getNote();

@@ -14,7 +14,6 @@ import com.joss.achords.R;
 
 public class UserDialogFragment extends AbstractDialogFragment {
 
-    public static final int USER_REQUEST_CODE = 987987;
     private View v;
 
     public UserDialogFragment() {
@@ -50,7 +49,7 @@ public class UserDialogFragment extends AbstractDialogFragment {
         EditText userNameEditText = (EditText)v.findViewById(R.id.user_edit_name);
         String userName = userNameEditText.getEditableText().toString();
         if(!userName.isEmpty()){
-            listener.onFragmentInteraction(USER_REQUEST_CODE, AppCompatActivity.RESULT_OK, userName);
+            listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, userName);
             return true;
         }
         else{

@@ -3,10 +3,12 @@ package com.joss.achords.Models;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.joss.achords.AbstractParentActivity;
 import com.joss.achords.Database.DbContract;
 import com.joss.achords.Database.SongsDbHelper;
 
@@ -29,6 +31,7 @@ public class Songbook {
     private static final String IMPORT_OPTION_REPLACE = "Replace";
 
     public static final String EXPORT_FORMAT_JSON_TOKEN="IE876RTEZ87YGDSD67";
+    public static final String SONGLISTS_SHARED_PREFS_KEY = "shared_prefs_songlists";
 
     public interface OnSongbookChangeListener{
         void onDBChange();
@@ -38,6 +41,8 @@ public class Songbook {
     private ArrayList<Song> mSongs;
     private SQLiteDatabase db;
     private SongsDbHelper dbHelper;
+    private ArrayList<Songlist> lists;
+    private SharedPreferences sharedPrefs;
 
     private ArrayList<OnSongbookChangeListener> listeners = new ArrayList<>();
 
@@ -47,6 +52,9 @@ public class Songbook {
         dbHelper = new SongsDbHelper(context);
         loadDB();
         readDB();
+        sharedPrefs = context.getSharedPreferences(AbstractParentActivity.SHARED_PREFS, Context.MODE_PRIVATE);
+        getSonglistsFromSharedPrefs();
+        lists = new ArrayList<>();
     }
 
     public static Songbook get(Context context) {
@@ -131,7 +139,20 @@ public class Songbook {
                 r.add(artist);
             }
         }
-        Log.d("SONGBOOK", "List of artists: "+r.toString());
+        return r;
+    }
+
+    public ArrayList<Songlist> getLists() {
+        return lists;
+    }
+
+    public ArrayList<Song> getSongsOfArtist(String artist){
+        ArrayList<Song> r = new ArrayList<>();
+        for(Song song : mSongs){
+            if(song.getArtist().equals(artist)){
+                r.add(song);
+            }
+        }
         return r;
     }
 
@@ -266,6 +287,32 @@ public class Songbook {
         }
         catch (IOException ignored){}
         return false;
+    }
+
+    private void getSonglistsFromSharedPrefs(){
+        try {
+            JSONObject songlistsJson = new JSONObject(sharedPrefs.getString(SONGLISTS_SHARED_PREFS_KEY, ""));
+            JSONArray array = songlistsJson.getJSONArray("list");
+            for(int i=0; i<array.length(); i++){
+                lists.add(new Songlist(array.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveSonglists(){
+        JSONObject obj = new JSONObject();
+        JSONArray array = new JSONArray();
+        for (Songlist list : lists){
+            array.put(list.toJson());
+        }
+        try {
+            obj.put("lists", array);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        sharedPrefs.edit().putString(SONGLISTS_SHARED_PREFS_KEY, obj.toString());
     }
 
 }

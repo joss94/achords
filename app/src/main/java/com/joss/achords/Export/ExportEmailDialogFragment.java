@@ -11,12 +11,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.joss.achords.AbstractDialogFragment;
+import com.joss.achords.AbstractParentActivity;
 import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
 
 public class ExportEmailDialogFragment extends AbstractDialogFragment {
 
-    public static final int EMAIL_REQUEST_CODE = 234;
     private EditText emailEditText;
 
     public ExportEmailDialogFragment() {
@@ -54,7 +54,7 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
             return false;
         }
         else{
-            listener.onFragmentInteraction(EMAIL_REQUEST_CODE, AppCompatActivity.RESULT_OK, email);
+            listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, email);
             return true;
         }
     }

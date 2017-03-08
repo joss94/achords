@@ -20,7 +20,6 @@ import java.util.Calendar;
 @TargetApi(15)
 public class YearDialogFragment extends AbstractDialogFragment {
     public static final String EXTRA_DATE="Extra_date";
-    public static final int RELEASE_YEAR_REQUEST_CODE = 23512;
 
     private int mCurrentYear;
     private NumberPicker mNumberPicker;
@@ -64,7 +63,7 @@ public class YearDialogFragment extends AbstractDialogFragment {
 
     @Override
     public boolean callback(){
-        listener.onFragmentInteraction(RELEASE_YEAR_REQUEST_CODE, AppCompatActivity.RESULT_OK, mNumberPicker.getValue());
+        listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, mNumberPicker.getValue());
         return true;
     }
 }

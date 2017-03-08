@@ -123,7 +123,9 @@ public abstract class SelectAdapter<T> extends RecyclerView.Adapter<RecyclerView
     public List<T> getSelected(){
         List<T> r = new ArrayList<>();
         for(Integer i:selected){
-            r.add(items.get(i));
+            if (i<items.size()) {
+                r.add(items.get(i));
+            }
         }
         return r;
     }

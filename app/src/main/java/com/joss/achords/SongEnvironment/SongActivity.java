@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.View;
@@ -37,16 +38,18 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        View v=getLayoutInflater().inflate(R.layout.activity_song,null);
-        setContentView(v);
+        setContentView(getLayoutInflater().inflate(R.layout.activity_song,null));
 
         song_id= (UUID)getIntent().getSerializableExtra(EXTRA_SONG_ID);
         Song song = Songbook.get(this).getById(song_id);
 
+        //<editor-fold desc="TOOLBAR">
         toolbar = (Toolbar)findViewById(R.id.toolbar);
-        ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setText(song.getName());
         ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
-        ((TextView)toolbar.findViewById(R.id.toolbar_artist)).setText((song.getArtist()!=null&&!song.getArtist().isEmpty())?song.getArtist():getResources().getString(R.string.unknown));
+        if (song.getName() !=null && !song.getName().isEmpty()) {
+            ((TextView)toolbar.findViewById(R.id.toolbar_song_title)).setText(song.getName());
+            ((TextView)toolbar.findViewById(R.id.toolbar_artist)).setText((song.getArtist()!=null&&!song.getArtist().isEmpty())?song.getArtist():getResources().getString(R.string.unknown));
+        }
         toolbar.findViewById(R.id.back_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,14 +60,26 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
         configOverflowMenu(toolbar);
         setSupportActionBar(toolbar);
         toolbar.showOverflowMenu();
+        //</editor-fold>
 
         mode = (int)getIntent().getSerializableExtra(EXTRA_MODE);
 
-        mViewPager = (CustomViewPager)v.findViewById(R.id.view_pager);
+        mViewPager = (CustomViewPager)findViewById(R.id.view_pager);
 
         FragmentManager fm = getSupportFragmentManager();
         registeredFragments= new SparseArray<>();
         mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
+            @Override
+            public void transformPage(View page, float position) {
+                if(Math.abs(position)<1){
+                    page.setRotationY(-position*20);
+                    page.setScaleX((float) (1-0.2*Math.abs(position)));
+                    page.setScaleY((float) (1-0.2*Math.abs(position)));
+                }
+
+            }
+        });
         mViewPager.setAdapter(new FragmentPagerAdapter(fm) {
             @Override
             public Fragment getItem(int position) {

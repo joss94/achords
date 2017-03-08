@@ -39,6 +39,117 @@
 
     </RelativeLayout>
 
+
+    <HorizontalScrollView
+        android:id="@+id/tabs_scroll_view"
+        android:layout_height="40dp"
+        android:layout_width="match_parent"
+        android:scrollbars="none"
+        android:background="@color/colorPrimary"
+        android:clickable="false">
+
+
+
+        <RelativeLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary">
+
+            <LinearLayout
+                android:id="@+id/tabs"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/songs_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/songs_tab_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/size_title_normal"
+                        android:textColor="@android:color/white"
+                        android:padding="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/songs" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginBottom="@dimen/activity_horizontal_margin_small" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/artists_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/artists_tab_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/size_title_normal"
+                        android:textColor="@android:color/white"
+                        android:padding="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/artists" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:layout_marginTop="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginBottom="@dimen/activity_horizontal_margin_small" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/lists_tab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/lists_tab_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/size_title_normal"
+                        android:textColor="@android:color/white"
+                        android:padding="@dimen/activity_horizontal_margin_small"
+                        android:layout_marginStart="@dimen/activity_horizontal_margin"
+                        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                        android:text="@string/lists" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/tab_indicator"
+                android:layout_width="1px"
+                android:layout_height="5dp"
+                android:background="@android:color/white"
+                android:layout_alignParentBottom="true"/>
+        </RelativeLayout>
+
+    </HorizontalScrollView>
+
+
+
+
+
     <View
         android:layout_width="match_parent"
         android:layout_height="5dp"
@@ -46,34 +157,23 @@
         android:layout_marginBottom="-5dp"
         android:elevation="5dp"/>
 
-
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/songbook_artist_header"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="@dimen/songbook_artist_header"
+            android:text="@string/artist_header_label_one_song"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:visibility="gone"/>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:focusable="true"
-                android:elevation="2dp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="10dp"
-                android:layout_marginTop="-5dp"
-                android:layout_marginBottom="1dp"
-                android:background="@drawable/shadow"/>
-
-        </LinearLayout>
-
-
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <ImageButton
             android:id="@+id/new_song_button"
