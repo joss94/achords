@@ -4,24 +4,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_vertical"
-    android:padding="@dimen/activity_horizontal_margin_small"
-    tools:context="com.joss.achords.Fragments.ExportEmailDialogFragment">
+    tools:context="com.joss.achords.Export.ExportEmailDialogFragment">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email : "
-        android:layout_marginBottom="@dimen/activity_vertical_margin_small"/>
+        android:text="@string/email"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"/>
 
     <EditText
         android:id="@+id/export_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:hint="EMail to send the file"
-        android:padding="@dimen/activity_horizontal_margin_small"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-    <include layout="@layout/dialog_buttons"/>
+        android:hint="@string/email_hint"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="@null"/>
 
 </LinearLayout>

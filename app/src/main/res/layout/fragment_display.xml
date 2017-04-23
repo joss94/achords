@@ -1,11 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/scroll_view"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
         android:scrollbars="none"
         >
 
@@ -18,23 +22,12 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/display_title"
-                android:gravity="top|center"
-                android:layout_marginRight="60dp"
-                android:layout_marginLeft="60dp"
-                android:textSize="@dimen/size_title_big"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/display_artist_date"
-                android:gravity="top|center"
+                android:id="@+id/display_capo"
+                android:gravity="top|start"
                 android:textSize="@dimen/size_title_normal"
+                android:padding="5dp"
                 android:textStyle="italic"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
-                />
+                android:layout_marginBottom="@dimen/activity_vertical_margin" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -71,18 +64,13 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="20dp">
 
-        <Button
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
             android:id="@+id/chord_button"
             android:layout_width="@dimen/round_button_size"
             android:layout_height="@dimen/round_button_size"
-            android:text="Am"
-            android:textSize="20dp"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:src="@android:drawable/ic_menu_delete"
-            android:background="@drawable/round_button_shape"
             android:layout_marginBottom="20dp"
-            android:elevation="5dp"/>
+            android:elevation="5dp"
+            android:background="@null"/>
 
         <ImageButton
             android:id="@+id/scroll_button"
@@ -96,11 +84,5 @@
 
 
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/transparent_gradient"
-        android:layout_alignParentTop="true"/>
 
 </RelativeLayout>

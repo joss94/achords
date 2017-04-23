@@ -24,20 +24,4 @@
             android:hint="Type user name here"/>
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/OK_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="OK"
-            android:layout_alignParentEnd="true"
-            android:textColor="@color/DarkBlue"
-            android:background="@null"/>
-
-    </RelativeLayout>
-
-
 </LinearLayout>

@@ -5,13 +5,15 @@
     android:orientation="vertical">
 
 
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/scroll_view"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
+        android:scrollbars="none"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
         <LinearLayout
@@ -22,27 +24,12 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/chords_song_title"
-                android:gravity="top|center"
-                android:layout_marginRight="60dp"
-                android:layout_marginLeft="60dp"
-                android:textSize="32dp"
-                android:text="Song title"
-                android:layout_marginBottom="16dp"
-                />
-
-
-            <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/chords_artist_date"
-            android:gravity="top|center"
-            android:textSize="16dp"
-            android:textStyle="italic"
-            android:text="artist - 1999"
-            android:layout_marginBottom="16dp"
-            />
-
+                android:id="@+id/display_capo"
+                android:gravity="top|start"
+                android:textSize="@dimen/size_title_normal"
+                android:padding="5dp"
+                android:textStyle="italic"
+                android:layout_marginBottom="@dimen/activity_vertical_margin" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -66,12 +53,6 @@
 
     </ScrollView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/transparent_gradient"
-        android:layout_alignParentTop="true"/>
-
     <RelativeLayout
         android:id="@+id/chord_bin"
         android:layout_width="match_parent"
@@ -84,7 +65,7 @@
             android:layout_width="80dp"
             android:layout_height="match_parent"
             android:src="@drawable/ic_delete"
-            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
             android:scaleType="fitCenter"
             android:padding="20dp"
             />
@@ -97,7 +78,7 @@
         android:orientation="vertical"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/round_button_margin">
+        android:layout_marginEnd="@dimen/round_button_margin">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recent_chords"
@@ -106,15 +87,13 @@
             app:reverseLayout="true"
             app:stackFromEnd="true"/>
 
-        <com.joss.achords.Views.ChordButton
+        <ImageButton
             android:id="@+id/add_chord_button"
             android:layout_width="@dimen/round_button_size"
             android:layout_height="@dimen/round_button_size"
-            app:mode="minor"
-            app:note="A"
-            app:color="@color/DarkBlue"
-            app:textColor="@android:color/white"
-            android:elevation="5dp"/>
+            android:src="@drawable/ic_add_white_36dp"
+            android:background="@drawable/round_button_shape"
+            android:layout_marginBottom="@dimen/round_button_margin" android:elevation="5dp"/>
 
 
     </LinearLayout>

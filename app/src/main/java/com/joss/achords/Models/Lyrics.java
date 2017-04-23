@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
+/*
  * Created by Joss on 21/12/2016.
  */
 
@@ -15,35 +15,18 @@ public class Lyrics extends ArrayList<LyricsLine>{
 
     private static final String JSON_KEY_LYRICS = "json_lyrics";
 
-    public Lyrics (){
-
-    }
+    Lyrics (){}
 
     public Lyrics(String text){
         ArrayList<String> lyrics = new ArrayList<>(Arrays.asList(text.split("\n")));
         for(String line:lyrics){
-            boolean removing=false;
-            for(int i=0;i<line.length();i++){
-                switch (line.charAt(i)){
-                    case '[':
-                        removing=true;
-                        break;
-                    case ']':
-                        removing=false;
-                        break;
-                    default:
-                        break;
-                }
-                if(removing){line=line.substring(0,i-1)+line.substring(i+1);}
-            }
             this.add(new LyricsLine(line));
-    }
+        }
     }
 
-    public  Lyrics(JSONObject jsonObject)  {
-        JSONArray jsonArray = null;
+    Lyrics(JSONObject jsonObject)  {
         try {
-            jsonArray = jsonObject.getJSONArray(JSON_KEY_LYRICS);
+            JSONArray jsonArray = jsonObject.getJSONArray(JSON_KEY_LYRICS);
             for(int i=0;i<jsonArray.length();i++){
                 LyricsLine lyricsLine = new LyricsLine(jsonArray.getJSONObject(i));
                 this.add(lyricsLine);
@@ -59,11 +42,12 @@ public class Lyrics extends ArrayList<LyricsLine>{
             String s = lyricsLine.getText();
             r=r+s+"\n";
         }
-        if(!this.isEmpty()){r.substring(0,r.length()-1);}
+        if(!this.isEmpty()){
+            r = r.substring(0,r.length()-1);}
         return r;
     }
 
-    public JSONObject ToJSON() throws JSONException {
+    JSONObject ToJSON() throws JSONException {
         JSONObject r = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         for(LyricsLine lyricsLine:this){
@@ -86,9 +70,8 @@ public class Lyrics extends ArrayList<LyricsLine>{
 
         //<editor-fold desc="REMOVE CHORD IF ATTACHED TO DELETED CHAR">
         for(int i=0; i<line.getChords().size(); i++){
-            Chord chord = line.getChords().get(i);
-            if(chord.getPosition()==charPosInLine){
-                line.getChords().remove(chord);
+            if(line.getChords().get(i).getPosition()==charPosInLine){
+                line.getChords().remove(i);
             }
         }
         //</editor-fold>
@@ -102,8 +85,7 @@ public class Lyrics extends ArrayList<LyricsLine>{
 
                 //<editor-fold desc="MERGE TEXTS">
                 String firstPart = line.getText();
-                String secondPart = nextLine.getText();
-                line.setText(firstPart+secondPart);
+                line.setText(line.getText()+nextLine.getText());
                 //</editor-fold>
 
                 //<editor-fold desc="MERGE CHORDS">
@@ -133,9 +115,7 @@ public class Lyrics extends ArrayList<LyricsLine>{
         //If deleting any other char
         else{
             //<editor-fold desc="MERGE TEXTS">
-            String firstPart = line.getText().substring(0,charPosInLine);
-            String secondPart = line.getText().substring(charPosInLine+1);
-            line.setText(firstPart+secondPart);
+            line.setText(line.getText().substring(0,charPosInLine) + line.getText().substring(charPosInLine+1));
             //</editor-fold>
 
             //<editor-fold desc="MERGE CHORDS">

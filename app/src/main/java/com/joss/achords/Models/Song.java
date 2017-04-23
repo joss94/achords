@@ -9,12 +9,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class Song implements Serializable{
 
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
 
     //VALUES
     private UUID id;
@@ -25,13 +26,14 @@ public class Song implements Serializable{
     private Date lastEditionDate;
     private Lyrics lyrics;
 
+    private int capo;
+
     //CONSTRUCTOR
-
-
     public Song() {
         this.id = UUID.randomUUID();
         lastEditionDate= Calendar.getInstance().getTime();
         lyrics=new Lyrics();
+        capo = 0;
     }
 
     public Song(JSONObject json){
@@ -43,9 +45,10 @@ public class Song implements Serializable{
             this.editor=json.getString("editor");
             this.lastEditionDate = sdf.parse(json.getString("lastEditionDate"));
             this.lyrics=new Lyrics(json.getJSONObject("lyrics"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+            if (json.has("capo")) {
+                this.capo = json.getInt("capo");
+            }
+        } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
     }
@@ -71,7 +74,7 @@ public class Song implements Serializable{
         return editor;
     }
 
-    public Date getLastEditionDate() {
+    Date getLastEditionDate() {
         return lastEditionDate;
     }
 
@@ -79,14 +82,23 @@ public class Song implements Serializable{
         return lyrics;
     }
 
-    public ArrayList<Chord> getChords() {
-        ArrayList<Chord> chords = new ArrayList<>();
+    public int getCapo() {
+        return capo;
+    }
+
+    public Chord getFirstChord(){
         for(LyricsLine line : lyrics){
-            for(Chord chord : line.getChords()){
-                chords.add(chord);
+            if(!line.getChords().isEmpty()){
+                Chord r = line.getChords().get(0).copy();
+                for(Chord chord : line.getChords()){
+                    if(r.getPosition()>chord.getPosition()){
+                        r=chord.copy();
+                    }
+                }
+                return r;
             }
         }
-        return chords;
+        return null;
     }
 
     //SETTERS
@@ -118,17 +130,33 @@ public class Song implements Serializable{
         this.lyrics=lyrics;
     }
 
+    public void setCapo(int capo) {
+        this.capo = capo;
+    }
 
-    //METHODS
+    public void deleteChord(int line, int index){
+        List<Chord> chords = new ArrayList<>();
+        chords.addAll(lyrics.get(line).getChords());
+        for(Chord chord : chords){
+            if(Math.abs(chord.getPosition()-index)<=Chord.CHORD_MARGIN){
+                lyrics.get(line).getChords().remove(chord);
+            }
+        }
+    }
 
-    public boolean addChord (Chord chord, int line){
-        boolean added = false;
-        if(line>lyrics.size()){
-            line = lyrics.size()-1;
+    public String addChord(Chord chord, int line, int index){
+        for(Chord existingChord : lyrics.get(line).getChords()){
+            if(Math.abs(existingChord.getPosition()-index)<=Chord.CHORD_MARGIN){
+                return("There is already a chord here...");
+            }
+        }
+        if(index == lyrics.get(line).getText().length()){
+            lyrics.get(line).setText(lyrics.get(line).getText() + "    ");
         }
 
+        chord.setPosition(index);
         lyrics.get(line).addChord(chord);
-        return added;
+        return "success";
     }
 
     public String printLyrics(){
@@ -137,10 +165,6 @@ public class Song implements Serializable{
             r=lyrics.toString();
         }
         return r;
-    }
-
-    public void resetChords(){
-        //chords = new ArrayList<>();
     }
 
     public Song copy(){
@@ -152,10 +176,11 @@ public class Song implements Serializable{
         song.setEditor(this.editor);
         song.setLastEditionDate(this.lastEditionDate);
         song.setLyrics(this.lyrics.copy());
+        song.setCapo(this.capo);
         return song;
     }
 
-    public JSONObject toJSON() throws JSONException {
+    JSONObject toJSON() throws JSONException {
         JSONObject song_obj = new JSONObject();
         song_obj.put("name", this.name);
         song_obj.put("artist", this.artist);
@@ -163,6 +188,7 @@ public class Song implements Serializable{
         song_obj.put("editor", this.editor);
         song_obj.put("lastEditionDate", sdf.format(this.lastEditionDate));
         song_obj.put("lyrics", this.lyrics.ToJSON());
+        song_obj.put("capo", this.capo);
         return song_obj;
     }
 }

@@ -1,32 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/song_item_layout"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:background="@drawable/file_item_background"
-    android:descendantFocusability="blocksDescendants"
-    android:padding="@dimen/activity_vertical_margin_small"
     android:clickable="true"
-    android:longClickable="true">
+    android:focusable="true"
+    android:longClickable="true"
+    android:descendantFocusability="blocksDescendants">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/song_item_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/song_item_title"
-        android:textSize="20dp"
-        android:textColor="@color/file_item_text_color"
-        android:clickable="false"
-        android:background="@null"/>
+        android:layout_height="@dimen/list_item_height"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        >
 
-    <TextView
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/song_item_title"
+            android:text="Titre"
+            android:textSize="@dimen/size_songbook_song_title"
+            android:textColor="@color/file_item_text_color"
+            android:clickable="false"
+            android:background="@null" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/song_item_artist"
+            android:text="Artiste"
+            android:textSize="@dimen/size_songbook_artist"
+            android:textStyle="italic"
+            android:textColor="@color/text_hint_color"
+            android:clickable="false"
+            android:background="@null" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/add_to_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_action_add"
+        android:layout_margin="@dimen/activity_horizontal_margin"/>
+
+    <RelativeLayout
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/song_item_artist"
-        android:textSize="16dp"
-        android:textStyle="italic"
-        android:textColor="@color/text_hint_color"
-        android:clickable="false"
-        android:background="@null"/>
+        android:layout_alignParentBottom="true">
+        <include
+            android:id="@+id/song_item_separator"
+            layout="@layout/line_layout" />
+    </RelativeLayout>
 
-</LinearLayout>
+
+</RelativeLayout>
+

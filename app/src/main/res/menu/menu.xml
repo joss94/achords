@@ -4,15 +4,15 @@
 
     <item
         android:id="@+id/importData"
-        android:title="Import Songbook"
+        android:title="@string/import_songbook"
         app:showAsAction="never"/>
     <item
         android:id="@+id/exportData"
-        android:title="Export Songbook"
+        android:title="@string/export_songbook"
         app:showAsAction="never"/>
     <item
         android:id="@+id/settings"
-        android:title="Settings"
+        android:title="@string/settings"
         app:showAsAction="never"/>
 
 </menu>

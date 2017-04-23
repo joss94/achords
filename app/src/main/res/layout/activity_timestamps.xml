@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_timestamps"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/activity_horizontal_margin_big"
     android:orientation="vertical"
-    tools:context="com.joss.achords.Activities.TimestampsActivity">
+    tools:context=".SongEnvironment.ChordsEdition.Timestamps.TimestampsActivity">
 
     <TextView
         android:layout_width="match_parent"
