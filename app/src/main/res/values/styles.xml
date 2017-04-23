@@ -7,9 +7,17 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="actionOverflowButtonStyle">@style/overflow_style</item>
+        <item name="android:windowTranslucentStatus">true</item>
         <item name="android:textColor">@color/text_color</item>
         <item name="editTextStyle">@style/editTextStyle</item>
-        <item name="colorPrimaryDark">@color/ExtraDarkBlue</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="CustomDialogStyle" parent="AppTheme.Dialog">
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:cacheColorHint">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="AppTheme.Dialog" parent="Theme.AppCompat.Dialog">
@@ -24,6 +32,7 @@
         <item name="android:layout_marginBottom">10dp</item>
         <item name="android:background">@drawable/edittext_shape</item>
         <item name="android:textColorHint">@color/text_hint_color</item>
+        <item name="android:padding">10dp</item>
     </style>
 
     <style name="editionDescriptorStyle">

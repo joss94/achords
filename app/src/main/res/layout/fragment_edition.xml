@@ -25,10 +25,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:padding="5dp"
                 />
 
-            <include layout="@layout/line_layout"/>
+            <RelativeLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+                android:layout_marginTop="@dimen/activity_horizontal_margin_small">
+
+                <include layout="@layout/line_layout" />
+
+            </RelativeLayout>
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -40,11 +48,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/editTextStyle"
-                android:padding="5dp"
                 android:maxLines="1"
                 />
 
-            <include layout="@layout/line_layout"/>
+            <RelativeLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+                android:layout_marginTop="@dimen/activity_horizontal_margin_small">
+
+                <include layout="@layout/line_layout" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -68,7 +83,15 @@
 
             </LinearLayout>
 
-            <include layout="@layout/line_layout"/>
+            <RelativeLayout
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+                android:layout_marginTop="@dimen/activity_horizontal_margin_small">
+
+                <include layout="@layout/line_layout" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/lyrics_descriptor"
@@ -81,27 +104,51 @@
                 android:layout_height="wrap_content"
                 android:gravity="top"
                 android:id="@+id/edition_lyrics"
-                android:padding="5dp"
                 android:minLines="10"
                 android:textIsSelectable="false"
                 />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="250dp"/>
 
         </LinearLayout>
 
     </ScrollView>
 
-
-    <ImageButton
-        android:id="@+id/edition_ok_button"
-        android:layout_width="@dimen/round_button_size"
-        android:layout_height="@dimen/round_button_size"
-        android:background="@drawable/round_button_shape"
-        android:src="@drawable/ic_check_white_36dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="20dp"
-        android:elevation="5dp"
-        />
+        android:layout_alignParentEnd="true">
+
+        <ImageButton
+            android:id="@+id/edition_url_button"
+            android:layout_width="@dimen/round_button_size"
+            android:layout_height="@dimen/round_button_size"
+            android:background="@drawable/round_button_shape"
+            android:src="@drawable/ic_more_vert_white_24dp"
+            android:elevation="5dp"
+            android:layout_marginEnd="20dp"
+            />
+
+        <ImageButton
+            android:id="@+id/edition_ok_button"
+            android:layout_width="@dimen/round_button_size"
+            android:layout_height="@dimen/round_button_size"
+            android:background="@drawable/round_button_shape"
+            android:src="@drawable/ic_check_white_36dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:elevation="5dp"
+            />
+
+
+    </LinearLayout>
+
+
+
 
 
 

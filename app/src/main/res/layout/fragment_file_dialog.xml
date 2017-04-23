@@ -3,17 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.joss.achords.Fragments.FileDialogFragment">
+    tools:context="com.joss.achords.Import.FileDialogFragment">
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/file_chooser_listview"
         android:layout_width="match_parent"
-        android:choiceMode="singleChoice"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-    </ListView>
-
-    <include layout="@layout/dialog_buttons"/>
+        android:layout_weight="1"
+        android:background="@android:color/white"/>
 
 </LinearLayout>

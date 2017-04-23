@@ -8,6 +8,4 @@
         android:layout_height="wrap_content"
         android:id="@+id/year_number_picker"/>
 
-    <include layout="@layout/dialog_buttons"/>
-
 </LinearLayout>

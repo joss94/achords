@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <attr name="textColor" format="color"/>
+
     <declare-styleable name="ChordButton">
         <attr name="color" format="color" />
         <attr name="note" format="enum">
@@ -24,6 +27,7 @@
             <enum name="four" value="4"/>
             <enum name="six" value="5"/>
         </attr>
-        <attr name="textColor" format = "color"/>
+        <attr name="textColor"/>
     </declare-styleable>
+
 </resources>

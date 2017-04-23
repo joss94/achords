@@ -3,13 +3,14 @@ package com.joss.achords.Models;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.joss.achords.Utils.DbContract;
-import com.joss.achords.Utils.SongsDbHelper;
+import com.joss.achords.AchordsActivity;
+import com.joss.achords.Database.DbContract;
+import com.joss.achords.Database.SongsDbHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,35 +23,44 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class Songbook {
     public static final String EXPORT_FORMAT_JSON = "json";
-    public static final String EXPORT_FORMAT_TEXT = "text";
     public static final String IMPORT_OPTION_ADD = "Add";
-    public static final String IMPORT_OPTION_REPLACE = "Replace";
+    private static final String IMPORT_OPTION_REPLACE = "Replace";
+
+    private static final String SONGBOOK_JSON_KEY = "songbook";
+    private static final String LISTS_JSON_KEY = "lists";
 
     public static final String EXPORT_FORMAT_JSON_TOKEN="IE876RTEZ87YGDSD67";
+    private static final String SONGLISTS_SHARED_PREFS_KEY = "shared_prefs_songlists";
+
 
     public interface OnSongbookChangeListener{
-        public void onDBChange();
+        void onDBChange();
     }
 
     private static Songbook songbook;
-    private Context mContext;
-    private ArrayList<Song> mSongs;
+    private List<Song> mSongs;
     private SQLiteDatabase db;
     private SongsDbHelper dbHelper;
+    private List<Songlist> lists;
+    private SharedPreferences sharedPrefs;
 
-    private ArrayList<OnSongbookChangeListener> listeners = new ArrayList<>();
+    private List<OnSongbookChangeListener> listeners = new ArrayList<>();
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ROOT);
 
     private Songbook(Context context)  {
-        this.mContext = context;
-        dbHelper = new SongsDbHelper(mContext);
+        dbHelper = new SongsDbHelper(context);
+        lists = new ArrayList<>();
         loadDB();
         readDB();
+        sharedPrefs = context.getSharedPreferences(AchordsActivity.SHARED_PREFS, Context.MODE_PRIVATE);
+        getSonglistsFromSharedPrefs();
     }
 
     public static Songbook get(Context context) {
@@ -60,7 +70,7 @@ public class Songbook {
         return songbook;
     }
 
-    public void setOnSongbookChangeListener(OnSongbookChangeListener listener) {
+    public void addOnSongbookChangeListener(OnSongbookChangeListener listener) {
         listeners.add(listener);
     }
 
@@ -71,6 +81,7 @@ public class Songbook {
         row.put(DbContract.DbSongs.COLUMN_NAME_EDITOR, song.getEditor());
         row.put(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR, song.getReleaseYear());
         row.put(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE, sdf.format(song.getLastEditionDate()));
+        row.put(DbContract.DbSongs.COLUMN_NAME_CAPO, song.getCapo());
         try {
             row.put(DbContract.DbSongs.COLUMN_NAME_LYRICS, song.getLyrics().ToJSON().toString());
         } catch (JSONException e) {
@@ -94,6 +105,7 @@ public class Songbook {
         row.put(DbContract.DbSongs.COLUMN_NAME_EDITOR, song.getEditor());
         row.put(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR, song.getReleaseYear());
         row.put(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE, sdf.format(song.getLastEditionDate()));
+        row.put(DbContract.DbSongs.COLUMN_NAME_CAPO, song.getCapo());
         try {
             row.put(DbContract.DbSongs.COLUMN_NAME_LYRICS, song.getLyrics().ToJSON().toString());
         } catch (JSONException e) {
@@ -101,7 +113,7 @@ public class Songbook {
         }
 
         db.insert(DbContract.DbSongs.TABLE_NAME, null, row);
-        readDB();
+        mSongs.add(song);
         for(OnSongbookChangeListener listener : listeners) {
             listener.onDBChange();
         }
@@ -117,15 +129,20 @@ public class Songbook {
         }
     }
 
-    public ArrayList<String> getNames (){
-        ArrayList<String> names = new ArrayList<String>();
+    public void deleteList(Songlist songlist){
+        lists.remove(songlist);
+        saveSonglists();
+    }
+
+    private List<String> getNames(){
+        ArrayList<String> names = new ArrayList<>();
         for (Song song : mSongs){
             names.add(song.getName());
         }
         return names;
     }
 
-    public ArrayList<String> getArtists(){
+    public List<String> getArtists(){
         ArrayList<String> r = new ArrayList<>();
         for(Song song : mSongs){
             String artist = song.getArtist();
@@ -133,7 +150,30 @@ public class Songbook {
                 r.add(artist);
             }
         }
-        Log.d("SONGBOOK", "List of artists: "+r.toString());
+        return r;
+    }
+
+    public List<Songlist> getLists() {
+        return lists;
+    }
+
+    public List<Song> getSongsOfArtist(String artist){
+        ArrayList<Song> r = new ArrayList<>();
+        for(Song song : mSongs){
+            if(song.getArtist().equals(artist)){
+                r.add(song);
+            }
+        }
+        return r;
+    }
+
+    public List<Song> getSongsOfList(Songlist list){
+        ArrayList<Song> r = new ArrayList<>();
+        for(UUID id : list.getSongsIds()){
+            if(getById(id)!=null){
+                r.add(getById(id));
+            }
+        }
         return r;
     }
 
@@ -155,15 +195,15 @@ public class Songbook {
         return new Song();
     }
 
-    public ArrayList<Song> getSongs() {
+    public List<Song> getSongs() {
         return mSongs;
     }
 
-    public void loadDB(){
+    private void loadDB(){
         db = dbHelper.getWritableDatabase();
     }
 
-    public ArrayList<Song> readDB()  {
+    private List<Song> readDB()  {
         mSongs=new ArrayList<>();
         Cursor r = db.query (DbContract.DbSongs.TABLE_NAME,
                 null,
@@ -179,6 +219,7 @@ public class Songbook {
             song.setArtist(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_ARTIST)));
             song.setEditor(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_EDITOR)));
             song.setReleaseYear(r.getInt(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_RELEASE_YEAR)));
+            song.setCapo(r.getInt(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_CAPO)));
             try {
                 song.setLastEditionDate(sdf.parse(r.getString(r.getColumnIndex(DbContract.DbSongs.COLUMN_NAME_LAST_EDITION_DATE))));
             } catch (ParseException e) {
@@ -192,7 +233,7 @@ public class Songbook {
 
             mSongs.add(song);
         }
-
+        r.close();
         return mSongs;
     }
 
@@ -205,7 +246,7 @@ public class Songbook {
                 for(Song song:mSongs){
                     songbook_array.put(song.toJSON());
                 }
-                songbook_obj.put("songbook", songbook_array);
+                songbook_obj.put(SONGBOOK_JSON_KEY, songbook_array);
                 export = songbook_obj;
                 break;
 
@@ -223,7 +264,7 @@ public class Songbook {
 
         try {
             JSONObject jsonSongbook = new JSONObject(json_string);
-            JSONArray jsonSongsArray = jsonSongbook.getJSONArray("songbook");
+            JSONArray jsonSongsArray = jsonSongbook.getJSONArray(SONGBOOK_JSON_KEY);
             switch(option){
                 case IMPORT_OPTION_ADD:
                     for(int i =0; i<jsonSongsArray.length(); i++){
@@ -238,14 +279,13 @@ public class Songbook {
             }
 
         } catch (JSONException e) {
-            Toast.makeText(mContext, "Invalid format !!", Toast.LENGTH_LONG).show();
             return false;
         }
 
         return true;
     }
 
-    public String readJSONFile(File file)  {
+    private String readJSONFile(File file)  {
         String r="";
         try{
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -257,21 +297,46 @@ public class Songbook {
             }
             br.close();
         }
-        catch (IOException e){
-
-        }
+        catch (IOException ignored){}
         return r;
     }
 
-    public boolean checkJSONFile(File file)  {
+    private boolean checkJSONFile(File file)  {
         try{
             BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
             return(br.readLine().equals(EXPORT_FORMAT_JSON_TOKEN));
         }
-        catch (IOException e){
-        }
+        catch (IOException ignored){}
         return false;
+    }
+
+    private void getSonglistsFromSharedPrefs(){
+        try {
+            JSONObject songlistsJson = new JSONObject(sharedPrefs.getString(SONGLISTS_SHARED_PREFS_KEY, ""));
+            JSONArray array = songlistsJson.getJSONArray(LISTS_JSON_KEY);
+            for(int i=0; i<array.length(); i++){
+                lists.add(new Songlist(array.getJSONObject(i)));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveSonglists(){
+        JSONObject obj = new JSONObject();
+        JSONArray array = new JSONArray();
+        for (Songlist list : lists){
+            array.put(list.toJson());
+        }
+        try {
+            obj.put(LISTS_JSON_KEY, array);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        sharedPrefs.edit().putString(SONGLISTS_SHARED_PREFS_KEY, obj.toString()).apply();
+        for(OnSongbookChangeListener listener : listeners) {
+            listener.onDBChange();
+        }
     }
 
 }
