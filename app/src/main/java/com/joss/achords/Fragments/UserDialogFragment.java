@@ -3,29 +3,24 @@ package com.joss.achords.Fragments;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.joss.achords.AbstractDialogFragment;
 import com.joss.achords.R;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
 public class UserDialogFragment extends AbstractDialogFragment {
 
-    private View v;
+    private EditText userName;
 
     public UserDialogFragment() {
-        // Required empty public constructor
+        setLayoutId(R.layout.fragment_user_dialog);
     }
 
 
     public static UserDialogFragment newInstance() {
-        UserDialogFragment fragment = new UserDialogFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        return new UserDialogFragment();
     }
 
     @Override
@@ -34,22 +29,23 @@ public class UserDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_user_dialog, container, false);
+    protected void findViews(View v){
+        super.findViews(v);
+        userName = (EditText)v.findViewById(R.id.user_edit_name);
+    }
 
-        setDialogButtons(v);
-        setTitle(v, getContext().getResources().getString(R.string.user_dialog_title));
-
-        return v;
+    @Override
+    protected void setViews(){
+        super.setViews();
+        setTitle(getContext().getResources().getString(R.string.user_dialog_title));
+        cancel_button.setVisibility(View.GONE);
     }
 
     @Override
     public boolean callback(){
-        EditText userNameEditText = (EditText)v.findViewById(R.id.user_edit_name);
-        String userName = userNameEditText.getEditableText().toString();
-        if(!userName.isEmpty()){
-            listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, userName);
+        String name = userName.getEditableText().toString();
+        if(!name.isEmpty()){
+            listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK, name);
             return true;
         }
         else{

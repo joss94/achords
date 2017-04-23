@@ -22,13 +22,13 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.AbstractParentActivity;
+import com.joss.achords.AchordsActivity;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
-import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
 import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,7 +43,7 @@ import java.util.Calendar;
 import java.util.UUID;
 
 
-public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener {
+public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener, View.OnClickListener {
     private static final int URL_REQUEST_CODE = 1;
     private static final int RELEASE_YEAR_REQUEST_CODE = 2;
     Song mSong;
@@ -89,7 +89,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
                              Bundle savedInstanceState) {
         View v=inflater.inflate(R.layout.fragment_edition, container, false);
 
-        Songbook.get(getActivity()).setOnSongbookChangeListener(this);
+        Songbook.get(getActivity()).addOnSongbookChangeListener(this);
 
         //<editor-fold desc="FINDING AND SETTING VIEWS">
         mScrollView = (ScrollView)v.findViewById(R.id.scroll_view);
@@ -169,28 +169,12 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         //Set OK Button
         ImageButton ok_button=(ImageButton)v.findViewById(R.id.edition_ok_button);
         ((GradientDrawable)ok_button.getBackground()).setColor(getResources().getColor(R.color.Green));
-        ok_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean saved = saveModifications();
-                ((InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(mEditionLyrics.getWindowToken(), 0);
-                if(saved){
-                    for(OnSongChangedListener listener : listeners){
-                        listener.onSongChanged(mEditedSong.getId());
-                    }
-                }
-            }
-        });
+        ok_button.setOnClickListener(this);
 
         //Set URL Button
         ImageButton url_button=(ImageButton)v.findViewById(R.id.edition_url_button);
         ((GradientDrawable)url_button.getBackground()).setColor(getResources().getColor(R.color.colorPrimary));
-        url_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                askURL();
-            }
-        });
+        url_button.setOnClickListener(this);
 
         return v;
     }
@@ -205,6 +189,9 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if(getActivity() instanceof OnSongChangedListener){
+            addOnSongChangedListener((OnSongChangedListener) getActivity());
+        }
     }
 
     @Override
@@ -227,7 +214,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
     public boolean saveModifications() {
         mEditedSong.setName(mEditionName.getText().toString());
         mEditedSong.setArtist(mEditionArtist.getText().toString());
-        mEditedSong.setEditor(getActivity().getSharedPreferences(AbstractParentActivity.SHARED_PREFS, Context.MODE_PRIVATE).getString(AbstractParentActivity.USER_NAME, ""));
+        mEditedSong.setEditor(getActivity().getSharedPreferences(AchordsActivity.SHARED_PREFS, Context.MODE_PRIVATE).getString(AchordsActivity.USER_NAME, ""));
         try {
             mEditedSong.setReleaseYear(Integer.parseInt(mEditionReleaseYear.getText().toString()));
         } catch (NumberFormatException ignored) {
@@ -267,7 +254,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         //<editor-fold desc="CHECK FOR EXISTING LYRICS">
         if (creatingLyrics) {
             String newLyrics = mEditionLyrics.getText().toString();
-            if(newLyrics.endsWith("\n")){
+            while(newLyrics.endsWith("\n")){
                 newLyrics = newLyrics.substring(0,newLyrics.length()-1);
             }
             mEditedSong.setLyrics(new Lyrics(newLyrics));
@@ -353,6 +340,25 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         }
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.edition_ok_button:
+                boolean saved = saveModifications();
+                ((InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(mEditionLyrics.getWindowToken(), 0);
+                if(saved){
+                    for(OnSongChangedListener listener : listeners){
+                        listener.onSongChanged(mEditedSong.getId());
+                    }
+                }
+                break;
+
+            case R.id.edition_url_button:
+                askURL();
+                break;
+        }
+    }
+
     public interface OnSongChangedListener{
         void onSongChanged(UUID id);
     }
@@ -421,7 +427,7 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
         mEditionArtist.setText(((TextNode)(artistElement.childNode(0))).getWholeText());
     }
 
-    public class LyricsLoader extends AsyncTask<String, Void, Document>{
+    private class LyricsLoader extends AsyncTask<String, Void, Document>{
         @Override
         protected Document doInBackground(String... arg) {
             try {

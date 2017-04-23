@@ -4,16 +4,19 @@
     android:layout_height="wrap_content"
     android:background="@drawable/file_item_background"
     android:clickable="true"
+    android:focusable="true"
     android:longClickable="true"
     android:descendantFocusability="blocksDescendants">
 
     <LinearLayout
         android:id="@+id/song_item_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/list_item_height"
         android:orientation="vertical"
         android:layout_centerInParent="true"
-        android:padding="@dimen/activity_horizontal_margin"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         >
 
         <TextView
@@ -45,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_info_black_24dp"
+        android:src="@drawable/ic_action_add"
         android:layout_margin="@dimen/activity_horizontal_margin"/>
 
     <RelativeLayout

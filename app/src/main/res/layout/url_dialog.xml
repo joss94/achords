@@ -3,8 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/dialog_title"/>
-
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
@@ -27,8 +25,5 @@
             android:maxLines="1"
             android:background="@null"/>
     </LinearLayout>
-
-
-    <include layout="@layout/dialog_buttons"/>
 
 </LinearLayout>

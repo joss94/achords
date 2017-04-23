@@ -28,7 +28,7 @@
     <string name="ok">OK</string>
     <string name="release_date_hint">Seleciona uma data</string>
     <string name="select_chord">ACORDE</string>
-    <string name="song_delete_warning">Tem certeza que você que você quer deletar essas músicas?</string>
+    <string name="song_delete_warning">Tem certeza que você que você quer deletar esses itens?</string>
     <string name="songbook">Repertório</string>
     <string name="songbook_edit_search_hint">Busca...</string>
     <string name="songs">MÚSICAS</string>
@@ -41,4 +41,20 @@
     <string name="url_dialog_title">Escolha o endereço do site</string>
     <string name="user_dialog_title">Usuário</string>
     <string name="year_dialog_title">Escolha um ano</string>
+    <string name="importation_success">Repertório importado com sucesso</string>
+    <string name="invalid_format">Formato inválido</string>
+    <string name="no_lyrics">Música sem letras</string>
+    <string name="data_access_error">Falha ao acessar os armazenamento de dados</string>
+    <string name="export_mail_subject">Repertório do Achords</string>
+    <string name="export_mail_text">Segue em anexo o arquivo de exportação do seu repertório</string>
+    <string name="no_selected_file_error">Selecione um arquivo</string>
+    <string name="send_email">Mandar email</string>
+    <string name="export_songbook">Exportar</string>
+    <string name="import_songbook">Importar repertório</string>
+    <string name="settings">Configurações</string>
+    <string name="add_to_list_dialog_title" translatable="false">Selecione uma lista</string>
+    <string name="cancel">Cancelar</string>
+    <string name="click_to_start">Pressiona para começar</string>
+    <string name="export_dialog_title">Por favor entre o seu email</string>
+    <string name="type_new_list_name">Escolha o nome da nova lista</string>
 </resources>

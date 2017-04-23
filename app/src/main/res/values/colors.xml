@@ -16,7 +16,10 @@
     <color name="text_color">#000000</color>
     <color name="transparent_black">#33000000</color>
     <color name="transparent_black_dark">#66000000</color>
-    <color name="editTextBackground">#33102d7d</color>
+    <color name="editTextBackgroundsdfb">#Ff102d7d</color>
+    <color name="editTextBackground">#f0f0ff</color>
     <color name="songbook_hint_color">#aaffffff</color>
+
+    <color name="white">#FFFFFF</color>
 
 </resources>

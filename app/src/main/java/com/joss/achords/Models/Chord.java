@@ -1,25 +1,22 @@
 package com.joss.achords.Models;
 
-import android.util.SparseArray;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.HashMap;
 
-/**
+/*
  * Created by Joss on 23/12/2016.
  */
 
 public class Chord implements Serializable{
-    public static final int CHORD_MARGIN = 3;
+    static final int CHORD_MARGIN = 3;
+    private static final String JSON_KEY_CHORD = "Chord";
+    private static final String JSON_KEY_MODE = "Mode";
+    private static final String JSON_KEY_POSITION = "Position";
 
-    public static final String JSON_KEY_CHORD = "Chord";
-    public static final String JSON_KEY_MODE = "Mode";
-    public static final String JSON_KEY_POSITION = "Position";
-
-    public static final HashMap<String, Integer> scale =new HashMap();
+    public static final HashMap<String, Integer> scale =new HashMap<>();
     static{
         scale.put("A", 0);
         scale.put("A#", 1);
@@ -35,16 +32,8 @@ public class Chord implements Serializable{
         scale.put("G#", 11);
     }
     public static final String[] invertedScale = {"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"};
-    public static final int MAJOR = 0;
-    public static final int MINOR = 1;
-    public static final int SEVEN = 2;
-    public static final int SEVEN_MAJOR = 3;
-    public static final int FOUR = 4;
-    public static final int SIX = 5;
-    public static final String[] modes = {"","m", "7", "7M", "4", "6"};
+    private static final String[] modes = {"","m", "7", "7M", "4", "6"};
     public static final String[] modesDisplay = {"M","m", "7", "7M", "4", "6"};
-    public static final SparseArray<String> modeDisplay = new SparseArray<>();
-
 
     private int note;
     private int mode;
@@ -52,7 +41,7 @@ public class Chord implements Serializable{
 
     public Chord() {
         note =0;
-        mode=MAJOR;
+        mode=0;
         position=0;
     }
 
@@ -87,10 +76,6 @@ public class Chord implements Serializable{
         return mode;
     }
 
-    public void setMode(int mode) {
-        this.mode = mode;
-    }
-
     public int getPosition() {
         return position;
     }
@@ -103,7 +88,7 @@ public class Chord implements Serializable{
         return ""+invertedScale[note]+modes[mode];
     }
 
-    public JSONObject toJSON() throws JSONException {
+    JSONObject toJSON() throws JSONException {
         JSONObject r=new JSONObject();
         r.put(JSON_KEY_CHORD, note);
         r.put(JSON_KEY_MODE, mode);
@@ -116,5 +101,13 @@ public class Chord implements Serializable{
         int newMode = mode;
         int newPosition = position;
         return new Chord(newChord, newMode, newPosition);
+    }
+
+    public boolean equals(Chord chord){
+        boolean result = false;
+        if(this.getMode() == chord.getMode() && this.getNote() == chord.getNote()){
+            result = true;
+        }
+        return result;
     }
 }

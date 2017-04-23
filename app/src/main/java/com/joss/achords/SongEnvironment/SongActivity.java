@@ -9,21 +9,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.joss.achords.AbstractParentActivity;
+import com.joss.achords.AchordsActivity;
 import com.joss.achords.AchordsTypefaces;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
+import com.joss.achords.R;
 import com.joss.achords.SongEnvironment.ChordsEdition.ChordFragment;
 import com.joss.achords.SongEnvironment.SongDisplay.DisplayFragment;
 import com.joss.achords.SongEnvironment.SongEdit.EditionFragment;
-import com.joss.achords.R;
 
 import java.util.UUID;
 
-public class SongActivity extends AbstractParentActivity implements EditionFragment.OnSongChangedListener{
+public class SongActivity extends AchordsActivity implements EditionFragment.OnSongChangedListener{
     public static final int EXTRA_CREATE_MODE =1;
     public static final int EXTRA_DISPLAY_MODE=2;
     public static final String EXTRA_MODE="mode";
@@ -38,7 +37,7 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(getLayoutInflater().inflate(R.layout.activity_song,null));
+        setContentView(R.layout.activity_song);
 
         song_id= (UUID)getIntent().getSerializableExtra(EXTRA_SONG_ID);
         Song song = Songbook.get(this).getById(song_id);
@@ -74,10 +73,9 @@ public class SongActivity extends AbstractParentActivity implements EditionFragm
             public void transformPage(View page, float position) {
                 if(Math.abs(position)<1){
                     page.setRotationY(-position*20);
-                    page.setScaleX((float) (1-0.2*Math.abs(position)));
-                    page.setScaleY((float) (1-0.2*Math.abs(position)));
+                    page.setScaleX((float) (1-0.5*Math.abs(position)));
+                    page.setScaleY((float) (1-0.5*Math.abs(position)));
                 }
-
             }
         });
         mViewPager.setAdapter(new FragmentPagerAdapter(fm) {

@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
@@ -28,19 +27,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.OnDialogFragmentInteractionListener;
+import com.joss.achords.AchordsActivity;
+import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
-import com.joss.achords.Models.LyricsLine;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.R;
-import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton;
 import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButtonAdapter;
 import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordDragShadowBuilder;
 import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.OnChordButtonClickListener;
 import com.joss.achords.SongEnvironment.ChordsEdition.Timestamps.TimestampsDialogFragment;
+import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,25 +99,21 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         cursorOffset = 100;
 
         mLyricsLineViews = new ArrayList<>();
+        mCurrentChord = new Chord();
 
-        Songbook.get(getActivity()).setOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
+        mSongID = (UUID)getArguments().getSerializable(EXTRA_SONG_ID);
+        Songbook.get(getActivity()).addOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
             @Override
             public void onDBChange() {
                 refresh();
             }
         });
-
-        mSongID = (UUID)getArguments().getSerializable(EXTRA_SONG_ID);
-        mSong = Songbook.get(getActivity()).getById(mSongID);
-        mEditedSong=mSong.copy();
-        mLyrics=mEditedSong.getLyrics();
-        mCurrentChord = new Chord();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
+        mContext = context.getApplicationContext();
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
@@ -130,7 +125,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
         findViews(v);
         setViews();
-        setActions();
+        refresh();
 
         return v;
     }
@@ -148,32 +143,25 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     @SuppressWarnings("deprecation")
     public void setViews(){
         ((GradientDrawable) mSetTimestampsButton.getBackground()).setColor(mContext.getResources().getColor(R.color.colorPrimary));
-        mCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), mSong.getCapo()));
 
-        displayLyrics();
-    }
-
-    public void setActions(){
         mAddChordButton.setOnClickListener(this);
         mSetTimestampsButton.setOnClickListener(this);
         mCapo.setOnClickListener(this);
         mScrollView.setOnDragListener(this);
 
-        mRecentChordsAdapter = new ChordButtonAdapter(mContext, new ArrayList<Chord>(), this);
+        mRecentChordsAdapter = new ChordButtonAdapter(new ArrayList<Chord>(), this);
         mRecentChords.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecentChords.setAdapter(mRecentChordsAdapter);
-
     }
 
+
     private void displayLyrics(){
-        //Clean everything
         mLyricsLayout.removeAllViewsInLayout();
         mLyricsLineViews.clear();
 
         for (int i=0; i<mLyrics.size();i++){
-            final LyricsLine lyricsLine = mLyrics.get(i);
             //<editor-fold desc="CREATING LYRICS VIEWS">
-            final EditTextChords lineView = new EditTextChords(mContext, i);
+            final EditTextChords lineView = new EditTextChords(mLyricsLayout.getContext(), i);
             mLyricsLineViews.add(lineView);
             lineView.setId(i);
             lineView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimension(R.dimen.size_lyrics));
@@ -187,8 +175,8 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             lineView.setOnDoubleTapListener(this);
 
             //<editor-fold desc="SET TEXT AND CHORDS">
-            final SpannableString spannable  = new SpannableString(lyricsLine.getText());
-            for(Chord chord:lyricsLine.getChords()){
+            final SpannableString spannable  = new SpannableString(mLyrics.get(i).getText());
+            for(Chord chord:mLyrics.get(i).getChords()){
                 if(chord.getPosition()<spannable.length()){
                     spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
@@ -214,15 +202,11 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         mEditedSong=mSong.copy();
         mLyrics=mEditedSong.getLyrics();
 
-        setViews();
+        mCapo.setText(String.format(Locale.ENGLISH, mContext.getString(R.string.capo), mSong.getCapo()));
+        displayLyrics();
     }
 
     public void addChord(){
-        if(!mLyricsLineViews.get(mCurrentLine).hasFocus()){
-            Toast.makeText(getContext(), R.string.cursor_not_focused, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         String result = mEditedSong.addChord(mCurrentChord, mCurrentLine, mCurrentIndex);
         if(result.equals("success")){
             mRecentChordsAdapter.addChord(mCurrentChord);
@@ -230,7 +214,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         else {
             Toast.makeText(getContext(), result, Toast.LENGTH_SHORT).show();
         }
-        Songbook.get(getActivity()).updateSong(mEditedSong);
+        AchordsActivity.SONGBOOK.updateSong(mEditedSong);
     }
 
     public void changeID(UUID id){

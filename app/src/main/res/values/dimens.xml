@@ -21,4 +21,9 @@
     <dimen name="round_button_margin">20dp</dimen>
 
     <dimen name="songbook_artist_header">56dp</dimen>
+    <dimen name="text_small">12sp</dimen>
+    <dimen name="text_big">16sp</dimen>
+    <dimen name="text_very_big">20sp</dimen>
+    <dimen name="text_normal">14sp</dimen>
+    <dimen name="list_item_height">64dp</dimen>
 </resources>

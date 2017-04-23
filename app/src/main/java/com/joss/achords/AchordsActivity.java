@@ -8,7 +8,6 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +20,7 @@ import com.joss.achords.Models.Songbook;
 import com.joss.achords.Models.User;
 import com.joss.achords.Settings.MySettingsActivity;
 import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 import org.json.JSONException;
 
@@ -33,7 +33,7 @@ import java.util.UUID;
  * Created by Joss on 28/01/2017.
  */
 
-public abstract class AbstractParentActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener, PopupMenu.OnMenuItemClickListener {
+public abstract class AchordsActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener, PopupMenu.OnMenuItemClickListener {
 
     public static final int SETTINGS_MENU_ITEM = R.id.settings;
     public static final int EXPORT_MENU_ITEM = R.id.exportData;
@@ -47,12 +47,11 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     private static final int USER_REQUEST_CODE = 2;
     private static final int EMAIL_REQUEST_CODE = 3;
 
-    public static Typeface SONG_TITLE_TYPEFACE;
-
     private String mOption="";
     private User user;
     public SharedPreferences sharedPreferences;
-    protected Menu menu;
+
+    public static Songbook SONGBOOK;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +67,8 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
         } catch (IllegalArgumentException e) {
             createNewUser();
         }
+
+        SONGBOOK = Songbook.get(getApplicationContext());
     }
 
     private void initializeFonts() {
@@ -104,7 +105,7 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
     }
 
     public void createOverflowMenu(View anchorView){
-        PopupMenu popup = new PopupMenu(AbstractParentActivity.this, anchorView);
+        PopupMenu popup = new PopupMenu(AchordsActivity.this, anchorView);
         popup.getMenuInflater().inflate(R.menu.menu, popup.getMenu());
         popup.setOnMenuItemClickListener(this);
         popup.show();
@@ -180,10 +181,10 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("vnd.android.cursor.dir/email");
         i.putExtra(Intent.EXTRA_EMAIL, new String[]{email});
-        i.putExtra(Intent.EXTRA_SUBJECT, "Export of Songbook");
-        i.putExtra(Intent.EXTRA_TEXT, "Please find attach to this email the exportSongbook file of your Songbook");
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.export_mail_subject));
+        i.putExtra(Intent.EXTRA_TEXT, getString(R.string.export_mail_text));
         i.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getApplicationContext(), "com.joss.achords.fileprovider", export_file));
-        startActivityForResult(Intent.createChooser(i, "Send email"), 0);
+        startActivityForResult(Intent.createChooser(i, getString(R.string.send_email)), 0);
         //</editor-fold>
 
         return true;
@@ -199,10 +200,10 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                     if(importSongbook(new File(path))){
                         Intent i = new Intent(getApplicationContext(), SongbookActivity.class);
                         startActivity(i);
-                        Toast.makeText(getApplicationContext(), "Songbook imported successfully !", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.importation_success, Toast.LENGTH_LONG).show();
                     }
                     else{
-                        Toast.makeText(getApplicationContext(), "Invalid format !!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.invalid_format, Toast.LENGTH_LONG).show();
                     }
                 }
                 //</editor-fold>
@@ -226,5 +227,9 @@ public abstract class AbstractParentActivity extends AppCompatActivity implement
                 }
                 break;
         }
+    }
+
+    public User getUser() {
+        return user;
     }
 }

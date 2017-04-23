@@ -10,7 +10,7 @@ import android.view.View;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.R;
 
-/**
+/*
  * Created by Joss on 02/02/2017.
  */
 

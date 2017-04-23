@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.joss.achords.AchordsTypefaces;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.R;
-import com.joss.achords.SelectAdapter.SelectAdapter;
+import com.joss.utils.SelectAdapter.SelectAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +22,13 @@ import java.util.Locale;
  * Created by joss on 08/02/17.
  */
 
-public class ArtistAdapter extends SelectAdapter<String> implements Filterable{
-    private List<String> artists;
-    private List<String> artistsFiltered;
+class ArtistAdapter extends SelectAdapter<String> implements Filterable{
     private Context context;
 
-    public ArtistAdapter(Context context, List<String> artists) {
+    ArtistAdapter(Context context, List<String> artists) {
         super(artists);
         this.context = context.getApplicationContext();
-        this.artists = new ArrayList<>();
-        this.artistsFiltered = new ArrayList<>();
-        this.artists.addAll(artists);
-        this.artistsFiltered.addAll(artists);
-        items = this.artists;
+        selectable = false;
     }
 
     @Override
@@ -46,29 +40,16 @@ public class ArtistAdapter extends SelectAdapter<String> implements Filterable{
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        String artist = artistsFiltered.get(position);
+        String artist = items.get(position);
         ((ArtistViewHolder)holder).artistName.setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
         ((ArtistViewHolder)holder).artistName.setText(artist);
         ((ArtistViewHolder)holder).numberOfSongs.setText(String.format(Locale.ENGLISH, context.getString(R.string.number_of_songs), Songbook.get(context).getSongsOfArtist(artist).size()));
-        if(holder.getAdapterPosition()== artistsFiltered.size()-1){
+        if(holder.getAdapterPosition()== allItems.size()-1){
             ((ArtistViewHolder) holder).separator.setVisibility(View.GONE);
         }
         else{
             ((ArtistViewHolder) holder).separator.setVisibility(View.VISIBLE);
         }
-    }
-
-    @Override
-    public int getItemCount(){
-        return artistsFiltered.size();
-    }
-
-    public void refresh(ArrayList<String> artists){
-        this.artists.clear();
-        this.artistsFiltered.clear();
-        this.artists.addAll(artists);
-        this.artistsFiltered.addAll(artists);
-        notifyDataSetChanged();
     }
 
     @Override
@@ -80,10 +61,10 @@ public class ArtistAdapter extends SelectAdapter<String> implements Filterable{
                 List<String> resultsArray = new ArrayList<>();
 
                 if(constraint.toString().isEmpty()){
-                    resultsArray = artists;
+                    resultsArray = allItems;
                 }
                 else{
-                    for(String artist: artists){
+                    for(String artist: allItems){
                         if(artist.toLowerCase().contains(constraint.toString().toLowerCase())){
                             resultsArray.add(artist);
                         }
@@ -99,19 +80,19 @@ public class ArtistAdapter extends SelectAdapter<String> implements Filterable{
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                artistsFiltered = (ArrayList<String>)results.values;
+                items = (ArrayList<String>)results.values;
                 notifyDataSetChanged();
             }
         };
     }
 
-    protected class ArtistViewHolder extends RecyclerView.ViewHolder {
+    private class ArtistViewHolder extends RecyclerView.ViewHolder {
 
         TextView artistName;
         TextView numberOfSongs;
         View separator;
 
-        public ArtistViewHolder(View itemView) {
+        ArtistViewHolder(View itemView) {
             super(itemView);
             artistName = (TextView)itemView.findViewById(R.id.artist_name);
             numberOfSongs = (TextView)itemView.findViewById(R.id.number_of_songs);

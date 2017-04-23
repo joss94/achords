@@ -12,10 +12,8 @@ import android.widget.TextView;
 
 import com.joss.achords.AchordsTypefaces;
 import com.joss.achords.Models.Song;
-import com.joss.achords.Models.Songbook;
-import com.joss.achords.Models.Songlist;
 import com.joss.achords.R;
-import com.joss.achords.SelectAdapter.SelectAdapter;
+import com.joss.utils.SelectAdapter.SelectAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +22,11 @@ import java.util.List;
  * Created by joss on 08/02/17.
  */
 
-public class SongAdapter extends SelectAdapter<Song> implements Filterable{
-    private List<Song> songs;
-    private List<Song> songsFiltered;
-    private Context context;
+class SongAdapter extends SelectAdapter<Song> implements Filterable{
+    private OnAddToListListener mOnAddToListListener;
 
-    public SongAdapter(Context context, List<Song> songs) {
+    SongAdapter(Context context, List<Song> songs) {
         super(songs);
-        this.songs = new ArrayList<>();
-        this.songsFiltered = new ArrayList<>();
-        this.songs.addAll(songs);
-        this.songsFiltered.addAll(songs);
-        this.context = context.getApplicationContext();
-        items = this.songs;
     }
 
     @Override
@@ -48,11 +38,11 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
-        final Song song = songsFiltered.get(position);
+        final Song song = items.get(position);
         ((SongViewHolder)holder).name.setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
         ((SongViewHolder)holder).name.setText(song.getName());
         ((SongViewHolder)holder).artist.setText(song.getArtist());
-        if(holder.getAdapterPosition()==songsFiltered.size()-1){
+        if(holder.getAdapterPosition()== allItems.size()-1){
             ((SongViewHolder) holder).separator.setVisibility(View.GONE);
         }
         else{
@@ -62,27 +52,15 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
         ((SongViewHolder) holder).addToList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Songbook.get(context).getLists().get(0) == null){
-                    Songbook.get(context).getLists().add(new Songlist());
+                if(mOnAddToListListener!=null){
+                    mOnAddToListListener.onAddToList(song);
                 }
-                Songlist list = Songbook.get(context).getLists().get(0);
-                list.getSongsIds().add(song.getId());
-                Songbook.get(context).saveSonglists();
             }
         });
     }
 
-    @Override
-    public int getItemCount(){
-        return songsFiltered.size();
-    }
-
-    public void refresh(ArrayList<Song> songs){
-        this.songs.clear();
-        this.songsFiltered.clear();
-        this.songs.addAll(songs);
-        this.songsFiltered.addAll(songs);
-        notifyDataSetChanged();
+    void setOnAddToListListener(OnAddToListListener mOnAddToListListener) {
+        this.mOnAddToListListener = mOnAddToListListener;
     }
 
     @Override
@@ -94,10 +72,10 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
                 List<Song> resultsArray = new ArrayList<>();
 
                 if(constraint.toString().isEmpty()){
-                    resultsArray = songs;
+                    resultsArray = allItems;
                 }
                 else{
-                    for(Song song: songs){
+                    for(Song song: allItems){
                         if(song.getName().toLowerCase().contains(constraint.toString().toLowerCase())
                                 || song.getArtist().toLowerCase().contains(constraint.toString().toLowerCase())){
                             resultsArray.add(song);
@@ -114,20 +92,20 @@ public class SongAdapter extends SelectAdapter<Song> implements Filterable{
             @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                songsFiltered = (ArrayList<Song>)results.values;
+                items = (ArrayList<Song>)results.values;
                 notifyDataSetChanged();
             }
         };
     }
 
-    protected class SongViewHolder extends RecyclerView.ViewHolder {
+    private class SongViewHolder extends RecyclerView.ViewHolder {
 
         TextView artist;
         TextView name;
         ImageView addToList;
         View separator;
 
-        public SongViewHolder(View itemView) {
+        SongViewHolder(View itemView) {
             super(itemView);
             artist = (TextView)itemView.findViewById(R.id.song_item_artist);
             name = (TextView)itemView.findViewById(R.id.song_item_title);

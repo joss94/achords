@@ -23,7 +23,7 @@
     <string name="timestamps_dialog_title">TIMESTAMPS</string>
     <string name="capo_dialog_fragment">CAPO</string>
     <string name="cursor_not_focused">Cursor not focused</string>
-    <string name="song_delete_warning">Are you sure that you want to delete these songs?</string>
+    <string name="song_delete_warning">Are you sure that you want to delete these items?</string>
     <string name="exporting">Exporting songbook</string>
     <string name="email">E-mail :</string>
     <string name="email_hint">E-mail to send the file</string>
@@ -46,6 +46,21 @@
     <string name="songs">SONGS</string>
     <string name="artist_header_label">%1$d songs of %2$s</string>
     <string name="artist_header_label_one_song">%1$d song of %2$s</string>
-
+    <string name="no_lyrics">No lyrics in the song...</string>
+    <string name="importation_success">Songbook imported successfully !</string>
+    <string name="invalid_format">Invalid format !!</string>
+    <string name="send_email">Send email</string>
+    <string name="export_mail_subject">Achords songbook</string>
+    <string name="export_mail_text">Please find attach to this email the export file of your Songbook</string>
+    <string name="data_access_error">Unable to access data storage</string>
+    <string name="no_selected_file_error">Please select a file</string>
+    <string name="import_songbook">Import Songbook</string>
+    <string name="export_songbook">Export Songbook</string>
+    <string name="settings">Settings</string>
+    <string name="add_to_list_dialog_title" translatable="false">Select a list</string>
+    <string name="export_dialog_title">Please enter your email</string>
+    <string name="click_to_start">Click to start</string>
+    <string name="type_new_list_name">Type new list name</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

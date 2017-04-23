@@ -2,19 +2,17 @@ package com.joss.achords.SongEnvironment.ChordsEdition.Timestamps;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.AbstractDialogFragment;
-import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.R;
+import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
 import java.util.UUID;
 
@@ -22,7 +20,7 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
 
     private Context mContext;
     Songbook songbook;
-    Song mSong;
+    Lyrics lyrics;
     Song mEditedSong;
     int mCurrentLine = 0;
     boolean recording = false;
@@ -32,7 +30,7 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
     TextView next;
 
     public TimestampsDialogFragment() {
-        // Required empty public constructor
+        setLayoutId(R.layout.fragment_timestamps_dialog);
     }
 
     public static TimestampsDialogFragment newInstance(UUID song_id) {
@@ -49,36 +47,27 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
         mContext = getActivity().getApplicationContext();
         songbook = Songbook.get(mContext);
         UUID song_id = (UUID) getArguments().getSerializable(SongbookActivity.EXTRA_SONG_ID);
-        mSong = songbook.getById(song_id);
-        mEditedSong = mSong.copy();
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_timestamps_dialog, container, false);
-
-        findViews(v);
-        setViews();
-
-        if (mSong.getLyrics().isEmpty()) {
-            Toast.makeText(mContext, "No lyrics in the song...", Toast.LENGTH_LONG).show();
+        mEditedSong = songbook.getById(song_id).copy();
+        lyrics = mEditedSong.getLyrics();
+        if (lyrics.isEmpty()) {
+            Toast.makeText(mContext, R.string.no_lyrics, Toast.LENGTH_LONG).show();
             dismiss();
         }
-
-        setDialogButtons(v);
-        setTitle(v, mContext.getResources().getString(R.string.timestamps_dialog_title));
-
-        return v;
     }
 
-    public void findViews(View v){
+
+    @Override
+    protected void findViews(View v){
+        super.findViews(v);
         text = (TextView) v.findViewById(R.id.timestamps_text);
         next = (TextView) v.findViewById(R.id.next_line);
     }
 
-    public void setViews(){
-        next.setText(mSong.getLyrics().get(0).getText());
+    @Override
+    protected void setViews(){
+        super.setViews();
+        setTitle(getContext().getResources().getString(R.string.timestamps_dialog_title));
+        next.setText(lyrics.get(0).getText());
     }
 
 
@@ -91,35 +80,34 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
                     recording = true;
                     previousClick = System.currentTimeMillis();
                     ok_button.setText(R.string.ok);
-                    text.setText(mSong.getLyrics().get(mCurrentLine).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine).getText());
-                    if (mCurrentLine + 1 < mSong.getLyrics().size()) {
-                        next.setText(mSong.getLyrics().get(mCurrentLine+1).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine+1).getText());
+                    text.setText(next.getText());
+                    if (mCurrentLine + 1 < lyrics.size()) {
+                        next.setText(lyrics.get(mCurrentLine+1).getText().isEmpty()?"...":lyrics.get(mCurrentLine+1).getText());
                     } else {
                         next.setText(R.string.end_timestamps);
                     }
-                } else if (mCurrentLine <= mEditedSong.getLyrics().size() - 1) {
-                    mEditedSong.getLyrics().get(mCurrentLine).setDuration((int) (System.currentTimeMillis() - previousClick));
-                    Log.d("TIMESTAMPS", "Duration recorded: "+mEditedSong.getLyrics().get(mCurrentLine).getDuration());
+                } else if (mCurrentLine <= lyrics.size() - 1) {
+                    lyrics.get(mCurrentLine).setDuration((int) (System.currentTimeMillis() - previousClick));
                     previousClick = System.currentTimeMillis();
                     mCurrentLine++;
-                    if (mCurrentLine < mSong.getLyrics().size()) {
-                        text.setText(mEditedSong.getLyrics().get(mCurrentLine).getText());
+                    if (mCurrentLine < lyrics.size()) {
+                        text.setText(next.getText());
                     } else {
-                        text.setText(R.string.end_timestamps);
+                        text.setText(next.getText());
                         next.setText("");
                     }
-                    if (mCurrentLine + 1 < mSong.getLyrics().size()) {
-                        next.setText(mSong.getLyrics().get(mCurrentLine+1).getText().isEmpty()?"...":mSong.getLyrics().get(mCurrentLine+1).getText());
+                    if (mCurrentLine + 1 < lyrics.size()) {
+                        next.setText(lyrics.get(mCurrentLine+1).getText().isEmpty()?"...":lyrics.get(mCurrentLine+1).getText());
                     } else {
                         next.setText(R.string.end_timestamps);
                     }
                 }
 
-                if (mCurrentLine == mEditedSong.getLyrics().size() - 1) {
+                if (mCurrentLine == lyrics.size() - 1) {
                     ((Button) v).setText(R.string.finish);
                 }
 
-                if (mCurrentLine >= mEditedSong.getLyrics().size()) {
+                if (mCurrentLine >= lyrics.size()) {
                     saveModifications();
                     dismiss();
                 }

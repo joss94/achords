@@ -3,16 +3,14 @@ package com.joss.achords.SongEnvironment.ChordsEdition;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.joss.achords.AbstractDialogFragment;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.R;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
 
 public class ChordDialogFragment extends AbstractDialogFragment {
@@ -25,7 +23,7 @@ public class ChordDialogFragment extends AbstractDialogFragment {
     int mCurrentMode;
 
     public ChordDialogFragment() {
-
+        setLayoutId(R.layout.fragment_chord_dialog);
     }
 
     public static ChordDialogFragment newInstance(int currentNote, int currentMode){
@@ -38,24 +36,16 @@ public class ChordDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState){
-        View chordPickerView = getActivity().getLayoutInflater().inflate(R.layout.fragment_chord_dialog, null);
-        findViews(chordPickerView);
-        setViews();
-
-        setDialogButtons(chordPickerView);
-        setTitle(chordPickerView, getString(R.string.chord_dialog_title));
-
-        return chordPickerView;
-    }
-
     public void findViews(View v){
+        super.findViews(v);
         mNoteSpinner = (Spinner)v.findViewById(R.id.note_spinner);
         mModeSpinner = (Spinner)v.findViewById(R.id.mode_spinner);
     }
 
+    @Override
     public void setViews(){
+        super.setViews();
+        setTitle(getContext().getResources().getString(R.string.chord_dialog_title));
         //<editor-fold desc="NOTE SPINNER">
         ArrayAdapter<String> noteAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, Chord.invertedScale);
         noteAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

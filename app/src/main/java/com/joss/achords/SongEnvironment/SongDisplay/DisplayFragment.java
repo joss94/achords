@@ -11,7 +11,6 @@ import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,18 +22,17 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.AchordsTypefaces;
 import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.LyricsLine;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
-import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
 import com.joss.achords.SongEnvironment.ChordsEdition.ChordDialogFragment;
 import com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton;
 import com.joss.achords.SongbookHome.SongbookActivity;
+import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -63,8 +61,6 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
     private Context mContext;
     private UUID id;
 
-    private int startOffset = 0;
-
     private float scrollBuffer;
 
 
@@ -84,7 +80,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Songbook.get(getActivity()).setOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
+        Songbook.get(getActivity()).addOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
             @Override
             public void onDBChange() {
                 refresh();
@@ -205,7 +201,6 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
         linesCoordinates=new ArrayList<>();
 
         for (int i=0; i<mLyrics.size();i++){
-            final LyricsLine lyricsLine = mLyrics.get(i);
             //<editor-fold desc="CREATING LYRICS VIEWS">
 
             //<editor-fold desc="CREATE AND SET TEXT VIEW">
@@ -219,9 +214,9 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
             //</editor-fold>
 
             //<editor-fold desc="ADD CHORDS">
-            final SpannableString spannable = new SpannableString(lyricsLine.getText());
+            final SpannableString spannable = new SpannableString(mLyrics.get(i).getText());
             if (mDisplayChord) {
-                for(Chord realChord:lyricsLine.getChords()){
+                for(Chord realChord:mLyrics.get(i).getChords()){
                     Chord chord = realChord.copy();
                     chord.setNote(realChord.getNote()+toneOffset);
                     if(chord.getPosition()<spannable.length()-1){
@@ -265,6 +260,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
         int lineHeightDp =1;
         int lineHeightPx = lineHeightDp * (metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
         RelativeLayout.LayoutParams lineParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, lineHeightPx);
+        int startOffset = 0;
         int linePos = mScrollView.getTop()
                 + mScrollView.getChildAt(0).getTop()
                 + mDisplayLyricsLayout.getTop()
@@ -281,7 +277,6 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
         for(LyricsLine lyricsLine:mSong.getLyrics()){
             songDuration += lyricsLine.getDuration();
             if(lyricsLine.getDuration()==0){
-                Log.d("DISPLAY", "Line "+lyricsLine.getText()+" has a duration of 0");
                 Toast.makeText(getContext(), R.string.undefined_timestamps, Toast.LENGTH_LONG).show();
                 stopScrolling();
                 return;
@@ -369,8 +364,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
             case SELECT_CHORD_REQUEST_CODE:
                 if(resultCode == AppCompatActivity.RESULT_OK){
                     Chord chord = (Chord)args[0];
-                    int newNote = chord.getNote();
-                    toneOffset = newNote - mSong.getFirstChord().getNote();
+                    toneOffset = chord.getNote() - mSong.getFirstChord().getNote();
                     toneOffset = (toneOffset<0)?toneOffset+Chord.scale.size():toneOffset;
                     setViews();
                 }

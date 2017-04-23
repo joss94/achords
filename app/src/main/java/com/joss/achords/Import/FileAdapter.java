@@ -7,23 +7,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.joss.achords.R;
-import com.joss.achords.SelectAdapter.SelectAdapter;
+import com.joss.utils.SelectAdapter.SelectAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/*
  * Created by joss on 09/02/17.
  */
 
-public class FileAdapter extends SelectAdapter<File> {
+class FileAdapter extends SelectAdapter<File> {
 
-    private List<File> files;
-
-    protected FileAdapter(List<File> items) {
+    FileAdapter(List<File> items) {
         super(items);
-        files = items;
     }
 
     @Override
@@ -38,7 +35,7 @@ public class FileAdapter extends SelectAdapter<File> {
         if(position==0){
             ((FileViewHolder)holder).fileName.setText("..");
         } else{
-            String name = files.get(holder.getAdapterPosition()-1).getName();
+            String name = items.get(holder.getAdapterPosition()-1).getName();
             ((FileViewHolder)holder).fileName.setText(name);
         }
     }
@@ -63,7 +60,7 @@ public class FileAdapter extends SelectAdapter<File> {
 
         TextView fileName;
 
-        public FileViewHolder(View itemView) {
+        FileViewHolder(View itemView) {
             super(itemView);
             fileName = (TextView) itemView.findViewById(R.id.file_name);
         }

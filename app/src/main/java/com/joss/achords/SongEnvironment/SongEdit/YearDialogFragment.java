@@ -3,13 +3,11 @@ package com.joss.achords.SongEnvironment.SongEdit;
 import android.annotation.TargetApi;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
-import com.joss.achords.AbstractDialogFragment;
 import com.joss.achords.R;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
 import java.util.Calendar;
 
@@ -23,6 +21,10 @@ public class YearDialogFragment extends AbstractDialogFragment {
 
     private int mCurrentYear;
     private NumberPicker mNumberPicker;
+
+    public YearDialogFragment() {
+        setLayoutId(R.layout.date_dialog);
+    }
 
     public static YearDialogFragment newInstance(int year){
         Bundle args=new Bundle();
@@ -39,22 +41,15 @@ public class YearDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState){
-
-        View yearPickerView = getActivity().getLayoutInflater().inflate(R.layout.date_dialog, null);
-        findViews(yearPickerView);
-        setViews();
-        setDialogButtons(yearPickerView);
-        setTitle(yearPickerView, getContext().getResources().getString(R.string.year_dialog_title));
-        return yearPickerView;
-    }
-
     public void findViews(View v){
+        super.findViews(v);
         mNumberPicker=(NumberPicker)v.findViewById(R.id.year_number_picker);
     }
 
+    @Override
     public void setViews(){
+        super.setViews();
+        setTitle(getContext().getResources().getString(R.string.year_dialog_title));
         mNumberPicker.setMinValue(1900);
         mNumberPicker.setMaxValue(Calendar.getInstance().get(Calendar.YEAR));
         mNumberPicker.setWrapSelectorWheel(false);

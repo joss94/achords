@@ -4,30 +4,24 @@ package com.joss.achords.Export;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Patterns;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.joss.achords.AbstractDialogFragment;
-import com.joss.achords.AbstractParentActivity;
-import com.joss.achords.OnDialogFragmentInteractionListener;
 import com.joss.achords.R;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
+import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 public class ExportEmailDialogFragment extends AbstractDialogFragment {
 
     private EditText emailEditText;
 
     public ExportEmailDialogFragment() {
-        // Required empty public constructor
+        setLayoutId(R.layout.fragment_export_email);
     }
 
     public static ExportEmailDialogFragment newInstance() {
-        ExportEmailDialogFragment fragment = new ExportEmailDialogFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
+        return new ExportEmailDialogFragment();
     }
 
     @Override
@@ -37,13 +31,15 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_export_email, container, false);
+    public void findViews(View v){
+        super.findViews(v);
         emailEditText = (EditText)v.findViewById(R.id.export_email);
-        setDialogButtons(v);
-        setTitle(v, getContext().getResources().getString(R.string.exporting));
-        return v;
+    }
+
+    @Override
+    protected void setViews(){
+        super.setViews();
+        setTitle(getString(R.string.export_dialog_title));
     }
 
     @Override

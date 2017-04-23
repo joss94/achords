@@ -15,22 +15,23 @@
         <activity
             android:name="com.joss.achords.SongEnvironment.SongActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
         <activity
             android:name="com.joss.achords.SongbookHome.SongbookActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".SongEnvironment.ChordsEdition.Timestamps.TimestampsActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name="com.joss.achords.Settings.MySettingsActivity"
             android:label="@string/title_activity_my_settings"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
         </activity>
 
         <provider

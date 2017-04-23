@@ -1,108 +1,88 @@
 package com.joss.achords.Import;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.joss.achords.AbstractDialogFragment;
-import com.joss.achords.OnItemClickListener;
 import com.joss.achords.R;
-import com.joss.achords.SelectAdapter.SelectAdapter;
+import com.joss.utils.AbstractDialog.AbstractDialogFragment;
+import com.joss.utils.SelectAdapter.OnItemClickListener;
+import com.joss.utils.SelectAdapter.SelectAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class FileDialogFragment extends AbstractDialogFragment implements OnItemClickListener {
 
-    private static final String EXTRA_FILE = "Extra_file";
-
     private RecyclerView mRecyclerView;
     private File mPath;
-    private ArrayList<File> mFileList;
+    private List<File> mFileList;
     private String mChosenFilePath = "";
     private SelectAdapter<File> adapter;
 
     public FileDialogFragment() {
-        // Required empty public constructor
+        setLayoutId(R.layout.fragment_file_dialog);
     }
 
     public static FileDialogFragment newInstance() {
-        FileDialogFragment fragment = new FileDialogFragment();
-        return fragment;
+        return new FileDialogFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFileList = new ArrayList<>();
-    }
-
-    @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container,
-                              Bundle savedInstanceState){
-
-        // Inflate the layout for this fragment
-        View v=getActivity().getLayoutInflater().inflate(R.layout.fragment_file_dialog, null);
-        mRecyclerView= (RecyclerView) v.findViewById(R.id.file_chooser_listview);
 
         mPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "");
         try {
-            mPath.mkdirs();
-            if(mPath.exists()){
-                mFileList = new ArrayList<>(Arrays.asList(mPath.listFiles()));
-            }
-            else{
-                Toast.makeText(getContext(), "Unable to access data storage", Toast.LENGTH_LONG).show();
-                return null;
+
+            if (mPath.mkdirs()) {
+                if(mPath.exists()){
+                    mFileList = new ArrayList<>(Arrays.asList(mPath.listFiles()));
+                }
+                else{
+                    Toast.makeText(getContext(), R.string.data_access_error, Toast.LENGTH_LONG).show();
+                }
             }
         }catch(Exception ignored){
         }
+    }
 
+    @Override
+    public void findViews(View v){
+        super.findViews(v);
+        mRecyclerView= (RecyclerView) v.findViewById(R.id.file_chooser_listview);
+    }
+
+    @Override
+    public void setViews(){
+        super.setViews();
+        setTitle(getContext().getResources().getString(R.string.import_dialog_title));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter(mFileList);
         mRecyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(this);
         adapter.setSelectionUnique(true);
-
-        setDialogButtons(v);
-        setTitle(v, getContext().getResources().getString(R.string.import_dialog_title));
-
-        return v;
     }
+
 
     @Override
     public boolean callback(){
-        super.callback();
         if(adapter.getSelected().isEmpty()){
-            Toast.makeText(getContext(), "Please select a file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.no_selected_file_error, Toast.LENGTH_SHORT).show();
             return false;
         }
         return(processChoice(adapter.getSelected().get(0)));
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
-    public void onClick(int position) {
+    public void onItemClick(int position) {
         File mSelectedPath;
         if(position==0){
             if(mPath.getParent()!=null){

@@ -4,8 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/dialog_title"/>
-
     <TextView
         android:id="@+id/warning_message"
         android:layout_width="match_parent"
@@ -14,7 +12,5 @@
         android:padding="@dimen/activity_horizontal_margin"
         android:text="@string/song_delete_warning"
         style="@style/editionDescriptorStyle"/>
-
-    <include layout="@layout/dialog_buttons"/>
 
 </LinearLayout>

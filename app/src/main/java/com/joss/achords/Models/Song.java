@@ -1,7 +1,5 @@
 package com.joss.achords.Models;
 
-import android.widget.Toast;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,11 +9,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class Song implements Serializable{
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
 
     //VALUES
     private UUID id;
@@ -29,8 +29,6 @@ public class Song implements Serializable{
     private int capo;
 
     //CONSTRUCTOR
-
-
     public Song() {
         this.id = UUID.randomUUID();
         lastEditionDate= Calendar.getInstance().getTime();
@@ -136,28 +134,24 @@ public class Song implements Serializable{
         this.capo = capo;
     }
 
-    //METHODS
-
     public void deleteChord(int line, int index){
-        ArrayList<Chord> chordsInLine = lyrics.get(line).getChords();
-        for(int i=0;i<chordsInLine.size();i++){
-            Chord chord = chordsInLine.get(i);
-            if(Math.abs(chord.getPosition()-index)<=3){
+        List<Chord> chords = new ArrayList<>();
+        chords.addAll(lyrics.get(line).getChords());
+        for(Chord chord : chords){
+            if(Math.abs(chord.getPosition()-index)<=Chord.CHORD_MARGIN){
                 lyrics.get(line).getChords().remove(chord);
             }
         }
     }
 
     public String addChord(Chord chord, int line, int index){
-        ArrayList<Chord> chordsInLine = lyrics.get(line).getChords();
-        for(int i=0; i<chordsInLine.size(); i++){
-            Chord existingChord = chordsInLine.get(i);
+        for(Chord existingChord : lyrics.get(line).getChords()){
             if(Math.abs(existingChord.getPosition()-index)<=Chord.CHORD_MARGIN){
                 return("There is already a chord here...");
             }
         }
-        if(lyrics.get(line).getText().isEmpty()){
-            return("Can't add a chord to an empty line");
+        if(index == lyrics.get(line).getText().length()){
+            lyrics.get(line).setText(lyrics.get(line).getText() + "    ");
         }
 
         chord.setPosition(index);
