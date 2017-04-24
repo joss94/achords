@@ -121,7 +121,7 @@ public class Chord implements Serializable{
         return result;
     }
 
-    public void adjustTone(int toneOffset) {
+    public Chord adjustTone(int toneOffset) {
         int initialAttribute = attribute;
         int i = 0;
         while(i<toneOffset){
@@ -146,6 +146,7 @@ public class Chord implements Serializable{
             }
             i++;
         }
+        return this;
     }
 
     public static int getToneOffset(Chord chord1, Chord chord2){

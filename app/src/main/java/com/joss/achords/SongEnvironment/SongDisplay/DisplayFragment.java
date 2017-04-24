@@ -127,9 +127,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
             displayLyrics();
             if(mSong.getFirstChord()!=null){
                 mChordButton.setVisibility(View.VISIBLE);
-                Chord chord = mSong.getFirstChord().copy();
-                chord.setNote(chord.getNote()+toneOffset);
-                mChordButton.setChord(chord);
+                mChordButton.setChord(mSong.getFirstChord().adjustTone(toneOffset));
             }
             else{
                 mChordButton.setVisibility(View.GONE);
@@ -347,8 +345,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
         switch(v.getId()){
             case R.id.chord_button:
                 if (mSong.getFirstChord()!=null) {
-                    Chord chord = mSong.getFirstChord();
-                    ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(chord.getNote(), chord.getAttribute());
+                    ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mChordButton.getChord().getNote(), mChordButton.getChord().getAttribute());
                     chooseChordFragment.setOnFragmentInteractionListener(this);
                     chooseChordFragment.setRequestCode(SELECT_CHORD_REQUEST_CODE);
                     chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));

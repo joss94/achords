@@ -95,7 +95,12 @@ public class ChordDialogFragment extends AbstractDialogFragment {
         if(getArguments() != null && getArguments().containsKey(EXTRA_CHORD_NOTE)){
             modeContainer.setVisibility(View.GONE);
             onNoteClick((ChordButton) noteContainer.getChildAt(getArguments().getInt(EXTRA_CHORD_NOTE)));
-            onAttrClick((ChordButton) attrContainer.getChildAt(getArguments().getInt(EXTRA_CHORD_ATTR)));
+            for (int i=0; i<attrContainer.getChildCount(); i++) {
+                ChordButton chordButton = (ChordButton) attrContainer.getChildAt(i);
+                if(chordButton.getChord().getAttribute() == getArguments().getInt(EXTRA_CHORD_ATTR)){
+                    onAttrClick(chordButton);
+                }
+            }
         }
     }
 
