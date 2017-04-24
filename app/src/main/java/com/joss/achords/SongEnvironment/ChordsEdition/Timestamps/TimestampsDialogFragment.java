@@ -29,10 +29,6 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
     TextView text;
     TextView next;
 
-    public TimestampsDialogFragment() {
-        setLayoutId(R.layout.fragment_timestamps_dialog);
-    }
-
     public static TimestampsDialogFragment newInstance(UUID song_id) {
         TimestampsDialogFragment fragment = new TimestampsDialogFragment();
         Bundle args = new Bundle();
@@ -57,15 +53,13 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
 
 
     @Override
-    protected void findViews(View v){
-        super.findViews(v);
+    public void findViews(View v){
         text = (TextView) v.findViewById(R.id.timestamps_text);
         next = (TextView) v.findViewById(R.id.next_line);
     }
 
     @Override
-    protected void setViews(){
-        super.setViews();
+    public void setViews(){
         setTitle(getContext().getResources().getString(R.string.timestamps_dialog_title));
         next.setText(lyrics.get(0).getText());
     }
@@ -117,6 +111,16 @@ public class TimestampsDialogFragment extends AbstractDialogFragment {
                 dismiss();
                 break;
         }
+    }
+
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_timestamps_dialog;
+    }
+
+    @Override
+    public boolean callback() {
+        return false;
     }
 
     public void saveModifications() {

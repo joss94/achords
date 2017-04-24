@@ -16,8 +16,9 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
 
     private EditText emailEditText;
 
-    public ExportEmailDialogFragment() {
-        setLayoutId(R.layout.fragment_export_email);
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_export_email;
     }
 
     public static ExportEmailDialogFragment newInstance() {
@@ -32,13 +33,11 @@ public class ExportEmailDialogFragment extends AbstractDialogFragment {
 
     @Override
     public void findViews(View v){
-        super.findViews(v);
         emailEditText = (EditText)v.findViewById(R.id.export_email);
     }
 
     @Override
-    protected void setViews(){
-        super.setViews();
+    public void setViews(){
         setTitle(getString(R.string.export_dialog_title));
     }
 

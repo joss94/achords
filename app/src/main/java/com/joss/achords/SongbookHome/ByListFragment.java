@@ -1,7 +1,5 @@
 package com.joss.achords.SongbookHome;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,20 +10,15 @@ import android.view.ViewGroup;
 import com.joss.achords.AchordsActivity;
 import com.joss.achords.Models.Songlist;
 import com.joss.achords.R;
-import com.joss.utils.SelectAdapter.OnAdapterSelectModeChangeListener;
 import com.joss.utils.SelectAdapter.OnItemClickListener;
 
 import java.util.List;
 
 public class ByListFragment extends SongbookFragment implements
-        OnItemClickListener,
-        OnAdapterSelectModeChangeListener {
+        OnItemClickListener{
 
     private OnListClickedListener listClickedListener;
     private SonglistAdapter adapter;
-    private RecyclerView recyclerView;
-
-    private OnAdapterSelectModeChangeListener mSelectModeListener;
 
     public ByListFragment() {
         // Required empty public constructor
@@ -54,20 +47,12 @@ public class ByListFragment extends SongbookFragment implements
         adapter.setOnItemClickListener(this);
         adapter.setOnAdapterSelectModeChangeListener(this);
 
-        recyclerView = (RecyclerView) v.findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         //</editor-fold>
 
         return v;
-    }
-
-    @Override
-    public void onAttach(Context c){
-        super.onAttach(c);
-        if(getActivity() instanceof OnAdapterSelectModeChangeListener){
-            mSelectModeListener = (OnAdapterSelectModeChangeListener) getActivity();
-        }
     }
 
     public void setListClickedListener(OnListClickedListener listClickedListener) {
@@ -78,13 +63,6 @@ public class ByListFragment extends SongbookFragment implements
     public void onItemClick(int position) {
         if (listClickedListener!=null) {
             listClickedListener.onListClicked(adapter.getItems().get(position));
-        }
-    }
-
-    @Override
-    public void onAdapterSelectModeChange(boolean selectMode) {
-        if(mSelectModeListener != null){
-            mSelectModeListener.onAdapterSelectModeChange(selectMode);
         }
     }
 
@@ -101,17 +79,19 @@ public class ByListFragment extends SongbookFragment implements
         adapter.resetSelected();
     }
 
+    @Override
+    void exitSelectionMode() {
+        adapter.resetSelected();
+        adapter.notifyDataSetChanged();
+    }
+
 
     @Override
     public void refresh() {
         adapter.setItems(AchordsActivity.SONGBOOK.getLists());
     }
 
-    interface OnFragmentInteractionListener {
-        void onFragmentInteraction(Uri uri);
-    }
-
-    public interface OnListClickedListener{
+    interface OnListClickedListener{
         void onListClicked(Songlist list);
     }
 }

@@ -22,6 +22,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.joss.achords.Database.DBHelper;
 import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
@@ -80,7 +81,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Songbook.get(getActivity()).addOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
+        Songbook.get(getActivity()).addOnSongbookChangeListener(new DBHelper.OnDBChangeListener() {
             @Override
             public void onDBChange() {
                 refresh();
@@ -218,7 +219,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
             if (mDisplayChord) {
                 for(Chord realChord:mLyrics.get(i).getChords()){
                     Chord chord = realChord.copy();
-                    chord.setNote(realChord.getNote()+toneOffset);
+                    chord.adjustTone(toneOffset);
                     if(chord.getPosition()<spannable.length()-1){
                         spannable.setSpan(new ChordSpan(chord, mContext), chord.getPosition(), chord.getPosition()+1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
@@ -346,7 +347,8 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
         switch(v.getId()){
             case R.id.chord_button:
                 if (mSong.getFirstChord()!=null) {
-                    ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mChordButton.getChord().getNote(), -1);
+                    Chord chord = mSong.getFirstChord();
+                    ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(chord.getNote(), chord.getAttribute());
                     chooseChordFragment.setOnFragmentInteractionListener(this);
                     chooseChordFragment.setRequestCode(SELECT_CHORD_REQUEST_CODE);
                     chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
@@ -364,8 +366,7 @@ public class DisplayFragment extends Fragment implements View.OnLongClickListene
             case SELECT_CHORD_REQUEST_CODE:
                 if(resultCode == AppCompatActivity.RESULT_OK){
                     Chord chord = (Chord)args[0];
-                    toneOffset = chord.getNote() - mSong.getFirstChord().getNote();
-                    toneOffset = (toneOffset<0)?toneOffset+Chord.scale.size():toneOffset;
+                    toneOffset = Chord.getToneOffset(mSong.getFirstChord(), chord);
                     setViews();
                 }
                 break;

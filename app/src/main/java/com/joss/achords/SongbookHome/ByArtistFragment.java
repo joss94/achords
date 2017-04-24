@@ -35,11 +35,11 @@ public class ByArtistFragment extends SongbookFragment implements OnItemClickLis
 
         //<editor-fold desc="SET ADAPTER">
         List<String> mArtists = AchordsActivity.SONGBOOK.getArtists();
-        adapter = new ArtistAdapter(getContext(), mArtists);
+        adapter = new ArtistAdapter(context, mArtists);
         adapter.setOnItemClickListener(this);
 
         recyclerView = (RecyclerView) v.findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         //</editor-fold>
 
@@ -60,7 +60,7 @@ public class ByArtistFragment extends SongbookFragment implements OnItemClickLis
 
     @Override
     public void refresh() {
-        adapter.setItems(Songbook.get(getContext()).getArtists());
+        adapter.setItems(Songbook.get(context).getArtists());
     }
 
 
@@ -71,6 +71,11 @@ public class ByArtistFragment extends SongbookFragment implements OnItemClickLis
 
     @Override
     public void deleteSelected() {
+
+    }
+
+    @Override
+    void exitSelectionMode() {
 
     }
 

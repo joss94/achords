@@ -7,7 +7,7 @@
         android:id="@+id/button"
         android:layout_width="@dimen/round_button_size"
         android:layout_height="@dimen/round_button_size"
-        android:layout_marginBottom="@dimen/round_button_margin"
+        android:layout_marginTop="@dimen/round_button_margin"
         />
 
 </RelativeLayout>

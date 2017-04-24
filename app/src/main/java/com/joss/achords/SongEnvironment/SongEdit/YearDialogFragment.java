@@ -22,8 +22,9 @@ public class YearDialogFragment extends AbstractDialogFragment {
     private int mCurrentYear;
     private NumberPicker mNumberPicker;
 
-    public YearDialogFragment() {
-        setLayoutId(R.layout.date_dialog);
+    @Override
+    public int getLayoutId() {
+        return R.layout.date_dialog;
     }
 
     public static YearDialogFragment newInstance(int year){
@@ -42,13 +43,11 @@ public class YearDialogFragment extends AbstractDialogFragment {
 
     @Override
     public void findViews(View v){
-        super.findViews(v);
         mNumberPicker=(NumberPicker)v.findViewById(R.id.year_number_picker);
     }
 
     @Override
     public void setViews(){
-        super.setViews();
         setTitle(getContext().getResources().getString(R.string.year_dialog_title));
         mNumberPicker.setMinValue(1900);
         mNumberPicker.setMaxValue(Calendar.getInstance().get(Calendar.YEAR));

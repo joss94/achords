@@ -55,10 +55,7 @@ public class SongActivity extends AchordsActivity implements EditionFragment.OnS
                 finish();
             }
         });
-        setToolbarPadding(toolbar);
-        configOverflowMenu(toolbar);
         setSupportActionBar(toolbar);
-        toolbar.showOverflowMenu();
         //</editor-fold>
 
         mode = (int)getIntent().getSerializableExtra(EXTRA_MODE);

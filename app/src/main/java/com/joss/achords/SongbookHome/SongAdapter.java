@@ -1,6 +1,5 @@
 package com.joss.achords.SongbookHome;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,14 +17,10 @@ import com.joss.utils.SelectAdapter.SelectAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created by joss on 08/02/17.
- */
-
 class SongAdapter extends SelectAdapter<Song> implements Filterable{
     private OnAddToListListener mOnAddToListListener;
 
-    SongAdapter(Context context, List<Song> songs) {
+    SongAdapter(List<Song> songs) {
         super(songs);
     }
 

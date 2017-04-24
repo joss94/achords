@@ -19,15 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/*
- * Created by joss on 08/02/17.
- */
-
 class SonglistAdapter extends SelectAdapter<Songlist> implements Filterable{
 
     private Context context;
 
-    public SonglistAdapter(List<Songlist> lists) {
+    SonglistAdapter(List<Songlist> lists) {
         super(lists);
     }
 

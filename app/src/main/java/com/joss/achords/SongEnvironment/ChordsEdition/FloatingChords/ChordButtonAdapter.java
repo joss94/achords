@@ -11,12 +11,8 @@ import com.joss.achords.R;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created by Joss on 01/02/2017.
- */
-
 public class ChordButtonAdapter extends RecyclerView.Adapter<ChordButtonAdapter.ChordButtonViewHolder> {
-    private static int MAX_LIST_SIZE = 4;
+    private static int MAX_LIST_SIZE = 8;
 
     private List<Chord> chords;
     private OnChordButtonClickListener listener;

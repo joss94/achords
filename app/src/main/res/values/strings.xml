@@ -62,5 +62,6 @@
     <string name="click_to_start">Click to start</string>
     <string name="type_new_list_name">Type new list name</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
 
 </resources>

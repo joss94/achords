@@ -15,32 +15,26 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.joss.achords.AchordsActivity;
 import com.joss.achords.AchordsTypefaces;
+import com.joss.achords.Database.DBHelper;
 import com.joss.achords.Models.Songbook;
 import com.joss.achords.Models.Songlist;
 import com.joss.achords.R;
 import com.joss.achords.SongEnvironment.SongActivity;
-import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
-import com.joss.utils.SelectAdapter.OnAdapterSelectModeChangeListener;
 import com.joss.utils.TabsScrollView.TabScrollView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SongbookActivity extends AchordsActivity implements Songbook.OnSongbookChangeListener,
-        OnAdapterSelectModeChangeListener,
+public class SongbookActivity extends AchordsActivity implements DBHelper.OnDBChangeListener,
         ByArtistFragment.OnArtistClickedListener,
         ByListFragment.OnListClickedListener {
 
-    private static final int DELETE_SONG_CONFIRM_REQUEST_CODE = 1;
-
-    private ImageView deleteBtn;
     private ViewPager mViewPager;
-    private SparseArray<Fragment> registeredFragments;
+    private SparseArray<SongbookFragment> registeredFragments;
     private FragmentStatePagerAdapter adapter;
     private TabScrollView tabsScrollView;
 
@@ -55,9 +49,6 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         ((TextView)toolbar.findViewById(R.id.title)).setTypeface(AchordsTypefaces.SONG_TITLE_FONT.typeface);
         setSupportActionBar(toolbar);
-        setToolbarPadding(toolbar);
-        configOverflowMenu(toolbar);
-        toolbar.showOverflowMenu();
         //</editor-fold>
 
         //<editor-fold desc="NEW SONG BUTTON">
@@ -74,26 +65,6 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
         });
         //</editor-fold>
 
-        //<editor-fold desc="DELETE BUTTON">
-        deleteBtn =(ImageView)findViewById(R.id.delete_btn);
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ConfirmDeleteDialogFragment fr = new ConfirmDeleteDialogFragment();
-                fr.setOnFragmentInteractionListener(new OnDialogFragmentInteractionListener() {
-                    @Override
-                    public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
-                        if(requestCode==DELETE_SONG_CONFIRM_REQUEST_CODE && resultCode == RESULT_OK){
-                            deleteSelected();
-                        }
-                    }
-                });
-                fr.setRequestCode(DELETE_SONG_CONFIRM_REQUEST_CODE);
-                fr.show(getSupportFragmentManager(), "DELETE_CONFIRM");
-            }
-        });
-        //</editor-fold>
-
         mViewPager = (ViewPager)findViewById(R.id.view_pager);
 
         registeredFragments = new SparseArray<>();
@@ -102,7 +73,7 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
         adapter = new FragmentStatePagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
-                Fragment r;
+                SongbookFragment r;
                 switch (position){
                     case 0:
                         r=createBySongFragment();
@@ -145,16 +116,6 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
         };
 
         mViewPager.setAdapter(adapter);
-        mViewPager.setPageTransformer(false, new ViewPager.PageTransformer() {
-            @Override
-            public void transformPage(View page, float position) {
-                if(position>0 && position<0.5){
-                    //mViewPager.getChildAt(mViewPager.getCurrentItem()).setScaleX(1-position);
-                    //mViewPager.getChildAt(mViewPager.getCurrentItem()).setScaleY(1-position);
-                }
-            }
-        });
-
         tabsScrollView.setViewPager(mViewPager);
 
         List<String> titles = new ArrayList<>();
@@ -182,7 +143,7 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
             @Override
             public void afterTextChanged(Editable s) {
                 if (registeredFragments.get(mViewPager.getCurrentItem()) != null) {
-                    ((SongbookFragment)registeredFragments.get(mViewPager.getCurrentItem())).filter(s.toString());
+                    registeredFragments.get(mViewPager.getCurrentItem()).filter(s.toString());
                 }
             }
         });
@@ -231,20 +192,7 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
     @Override
     public void onDBChange() {
         for(int i=0; i<registeredFragments.size(); i++){
-            ((SongbookFragment) registeredFragments.get(registeredFragments.keyAt(i))).refresh();
-        }
-    }
-
-    public void deleteSelected(){
-        ((SongbookFragment)registeredFragments.get(mViewPager.getCurrentItem())).deleteSelected();
-    }
-
-    @Override
-    public void onAdapterSelectModeChange(boolean selectMode) {
-        if(selectMode){
-            deleteBtn.setVisibility(View.VISIBLE);
-        } else {
-            deleteBtn.setVisibility(View.GONE);
+            registeredFragments.get(registeredFragments.keyAt(i)).refresh();
         }
     }
 
@@ -278,8 +226,6 @@ public class SongbookActivity extends AchordsActivity implements Songbook.OnSong
                 tabsScrollView.setTitle(oldFragmentIndex, newTabTitle);
                 mViewPager.animate().setDuration(200).setListener(null).alpha(1).start();
             }
-
-
 
             @Override
             public void onAnimationCancel(Animator animation) {

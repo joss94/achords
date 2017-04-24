@@ -14,8 +14,9 @@ public class UserDialogFragment extends AbstractDialogFragment {
 
     private EditText userName;
 
-    public UserDialogFragment() {
-        setLayoutId(R.layout.fragment_user_dialog);
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_user_dialog;
     }
 
 
@@ -29,14 +30,12 @@ public class UserDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    protected void findViews(View v){
-        super.findViews(v);
+    public void findViews(View v){
         userName = (EditText)v.findViewById(R.id.user_edit_name);
     }
 
     @Override
-    protected void setViews(){
-        super.setViews();
+    public void setViews(){
         setTitle(getContext().getResources().getString(R.string.user_dialog_title));
         cancel_button.setVisibility(View.GONE);
     }

@@ -7,10 +7,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Created by Joss on 24/12/2016.
- */
-
 public class LyricsLine {
 
     private static final String JSON_KEY_CHORDS = "json_key_chords";

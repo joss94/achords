@@ -1,6 +1,5 @@
 package com.joss.achords.SongbookHome;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,7 +16,6 @@ import com.joss.achords.Models.Songlist;
 import com.joss.achords.R;
 import com.joss.achords.SongEnvironment.SongActivity;
 import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
-import com.joss.utils.SelectAdapter.OnAdapterSelectModeChangeListener;
 import com.joss.utils.SelectAdapter.OnItemClickListener;
 
 import java.util.ArrayList;
@@ -27,12 +25,10 @@ import java.util.UUID;
 public class BySongFragment extends SongbookFragment implements
         OnAddToListListener,
         OnDialogFragmentInteractionListener,
-        OnItemClickListener,
-        OnAdapterSelectModeChangeListener {
+        OnItemClickListener{
 
     private static final int ADD_TO_LIST_REQUEST_CODE =1;
 
-    private OnAdapterSelectModeChangeListener mSelectModeListener;
     private List<Song> mSongs;
     private Songbook songbook;
     private SongAdapter adapter;
@@ -76,33 +72,19 @@ public class BySongFragment extends SongbookFragment implements
         View v = inflater.inflate(R.layout.fragment_by_song, container, false);
 
         //<editor-fold desc="SET ADAPTER">
-        adapter = new SongAdapter(getContext(), mSongs);
+        adapter = new SongAdapter(mSongs);
         adapter.setOnItemClickListener(this);
         adapter.setOnAdapterSelectModeChangeListener(this);
         adapter.setOnAddToListListener(this);
 
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
 
         refresh();
         //</editor-fold>
 
         return v;
-    }
-
-    @Override
-    public void onAttach(Context c){
-        super.onAttach(c);
-        if(getActivity() instanceof OnAdapterSelectModeChangeListener){
-            mSelectModeListener = (OnAdapterSelectModeChangeListener) getActivity();
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mSelectModeListener = null;
     }
 
     @Override
@@ -115,10 +97,25 @@ public class BySongFragment extends SongbookFragment implements
     }
 
     public void deleteSelected(){
-        for(Song song : adapter.getSelected()){
-            songbook.deleteSong(song.getId());
+        if(getArguments() != null && getArguments().containsKey(SONGLIST_KEY)) {
+            Songlist list = songbook.getSonglistFromName(getArguments().getString(SONGLIST_KEY));
+            for(Song song : adapter.getSelected()){
+                list.remove(song);
+                Songbook.get(context).saveSonglists();
+            }
         }
+        else {
+            for(Song song : adapter.getSelected()){
+                Songbook.get(context).deleteSong(song.getId());
+            }
+        }
+        exitSelectionMode();
+    }
+
+    @Override
+    void exitSelectionMode() {
         adapter.resetSelected();
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -129,14 +126,10 @@ public class BySongFragment extends SongbookFragment implements
             mSongs = songbook.getSongsOfArtist(getArguments().getString(ARTIST_KEY));
         }
         else if(getArguments() != null && getArguments().containsKey(SONGLIST_KEY)){
-            for(Songlist existingList : songbook.getLists()){
-                if(existingList.getName().equals(getArguments().getString(SONGLIST_KEY))){
-                    mSongs = songbook.getSongsOfList(existingList);
-                }
-            }
-
-        } else {
-            mSongs = songbook.getSongs();
+            mSongs = songbook.getSongsOfList(songbook.getSonglistFromName(getArguments().getString(SONGLIST_KEY)));
+        }
+        else {
+            mSongs = Songbook.get(context).getSongs();
         }
         adapter.setItems(mSongs);
     }
@@ -159,6 +152,7 @@ public class BySongFragment extends SongbookFragment implements
         switch(requestCode){
             case ADD_TO_LIST_REQUEST_CODE:
                 if(resultCode == AppCompatActivity.RESULT_OK){
+                    @SuppressWarnings("unchecked")
                     List<String> listsNames = (List<String>) args[0];
                     for(String listName : listsNames) {
                         boolean newList =true;
@@ -184,13 +178,6 @@ public class BySongFragment extends SongbookFragment implements
                     }
                 }
                 break;
-        }
-    }
-
-    @Override
-    public void onAdapterSelectModeChange(boolean selectMode) {
-        if(mSelectModeListener != null){
-            mSelectModeListener.onAdapterSelectModeChange(selectMode);
         }
     }
 }

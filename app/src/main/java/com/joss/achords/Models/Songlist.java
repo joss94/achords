@@ -8,10 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/*
- * Created by joss on 03/03/17.
- */
-
 public class Songlist {
 
     private String name;
@@ -76,5 +72,9 @@ public class Songlist {
             e.printStackTrace();
         }
         return obj;
+    }
+
+    public void remove(Song song) {
+        songsIds.remove(song.getId());
     }
 }

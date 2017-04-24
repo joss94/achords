@@ -4,13 +4,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.joss.achords.Export.ExportEmailDialogFragment;
@@ -27,29 +27,29 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-/*
- * Created by Joss on 28/01/2017.
- */
-
-public abstract class AchordsActivity extends AppCompatActivity implements OnDialogFragmentInteractionListener, PopupMenu.OnMenuItemClickListener {
+public abstract class AchordsActivity extends AppCompatActivity implements
+        OnDialogFragmentInteractionListener{
 
     public static final int SETTINGS_MENU_ITEM = R.id.settings;
     public static final int EXPORT_MENU_ITEM = R.id.exportData;
     public static final int IMPORT_MENU_ITEM = R.id.importData;
+    public static final int DELETE_MENU_ITEM = R.id.delete;
     public static final String SHARED_PREFS = "shared_prefs";
-    public static final String USER_ID = "user_id";
-    public static final String USER_NAME = "user_name";
 
     public static final String EXTRA_SONG_ID="com.joss.achords.extra_song_id";
     private static final int FILE_REQUEST_CODE = 1;
     private static final int USER_REQUEST_CODE = 2;
     private static final int EMAIL_REQUEST_CODE = 3;
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ROOT);
+
     private String mOption="";
-    private User user;
-    public SharedPreferences sharedPreferences;
+    public static SharedPreferences sharedPreferences;
 
     public static Songbook SONGBOOK;
 
@@ -60,15 +60,11 @@ public abstract class AchordsActivity extends AppCompatActivity implements OnDia
         initializeFonts();
 
         sharedPreferences = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE);
-        try {
-            UUID user_id = UUID.fromString(sharedPreferences.getString(USER_ID, ""));
-            String user_name = sharedPreferences.getString(USER_NAME, "");
-            user = new User(user_id, user_name);
-        } catch (IllegalArgumentException e) {
-            createNewUser();
-        }
-
         SONGBOOK = Songbook.get(getApplicationContext());
+
+        if(getUser() == null){
+            askNewUser();
+        }
     }
 
     private void initializeFonts() {
@@ -76,43 +72,34 @@ public abstract class AchordsActivity extends AppCompatActivity implements OnDia
         AchordsTypefaces.SONG_TITLE_FONT.setTypeface(Typeface.createFromAsset(getAssets(), getResources().getString(R.string.song_title_font)));
     }
 
-    protected void createNewUser(){
+    protected void askNewUser(){
         UserDialogFragment fr = new UserDialogFragment();
         fr.setOnFragmentInteractionListener(this);
         fr.setRequestCode(USER_REQUEST_CODE);
         fr.show(getSupportFragmentManager(), "USER");
     }
 
-    public void setToolbarPadding(Toolbar toolbar) {
+    @Override
+    public void setSupportActionBar(@NonNull Toolbar toolbar) {
+        super.setSupportActionBar(toolbar);
         int result = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
             result = getResources().getDimensionPixelSize(resourceId);
         }
-        if(toolbar!=null){
-            toolbar.setPadding(0,result,0,0);
-        }
-    }
-
-    public void configOverflowMenu(Toolbar toolbar){
-        final ImageView overflowBtn = (ImageView)toolbar.findViewById(R.id.overflow_btn);
-        overflowBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createOverflowMenu(overflowBtn);
-            }
-        });
-    }
-
-    public void createOverflowMenu(View anchorView){
-        PopupMenu popup = new PopupMenu(AchordsActivity.this, anchorView);
-        popup.getMenuInflater().inflate(R.menu.menu, popup.getMenu());
-        popup.setOnMenuItemClickListener(this);
-        popup.show();
+        toolbar.setPadding(0,result,0,0);
+        toolbar.showOverflowMenu();
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         Intent menuIntent;
         switch(item.getItemId()){
             case IMPORT_MENU_ITEM:
@@ -191,18 +178,17 @@ public abstract class AchordsActivity extends AppCompatActivity implements OnDia
     }
 
     @Override
-    public void onFragmentInteraction(int requestCode, int resultCode, Object... args){
-        switch (requestCode){
+    public void onFragmentInteraction(int requestCode, int resultCode, Object... args) {
+        switch (requestCode) {
             case FILE_REQUEST_CODE:
                 //<editor-fold desc="HANDLE FILE CHOSEN">
-                if(resultCode == AppCompatActivity.RESULT_OK){
+                if (resultCode == AppCompatActivity.RESULT_OK) {
                     String path = (String) args[0];
-                    if(importSongbook(new File(path))){
+                    if (importSongbook(new File(path))) {
                         Intent i = new Intent(getApplicationContext(), SongbookActivity.class);
                         startActivity(i);
                         Toast.makeText(getApplicationContext(), R.string.importation_success, Toast.LENGTH_LONG).show();
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getApplicationContext(), R.string.invalid_format, Toast.LENGTH_LONG).show();
                     }
                 }
@@ -211,25 +197,32 @@ public abstract class AchordsActivity extends AppCompatActivity implements OnDia
 
             case USER_REQUEST_CODE:
                 //<editor-fold desc="HANDLE USER CREATION">
-                if(resultCode==RESULT_OK){
-                    String userName = (String)args[0];
-                    this.user = new User();
-                    this.user.setName(userName);
-                    sharedPreferences.edit().putString(USER_ID, user.getId().toString()).apply();
-                    sharedPreferences.edit().putString(USER_NAME, user.getName()).apply();
+                if (resultCode == RESULT_OK && args[0] != null) {
+                    String userName = (String) args[0];
+                    User user = new User();
+                    user.setName(userName);
+                    user.save(sharedPreferences);
                 }
                 //</editor-fold>
                 break;
 
             case EMAIL_REQUEST_CODE:
-                if(resultCode==RESULT_OK){
-                    exportSongbook((String)args[0]);
+                if (resultCode == RESULT_OK) {
+                    exportSongbook((String) args[0]);
                 }
                 break;
         }
     }
 
-    public User getUser() {
-        return user;
+    public static User getUser() {
+        return User.getUser(sharedPreferences);
+    }
+
+    public static String formatDate(Date date){
+        return sdf.format(date);
+    }
+
+    public static Date parseDate(String date) throws ParseException {
+        return sdf.parse(date);
     }
 }

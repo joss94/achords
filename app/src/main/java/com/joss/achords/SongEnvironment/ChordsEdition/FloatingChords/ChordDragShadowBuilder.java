@@ -4,10 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.view.View;
 
-/*
- * Created by Joss on 03/02/2017.
- */
-
 public class ChordDragShadowBuilder extends View.DragShadowBuilder {
 
     private float scale = 0.8f;

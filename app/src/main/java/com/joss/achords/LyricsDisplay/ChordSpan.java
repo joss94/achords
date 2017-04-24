@@ -9,10 +9,6 @@ import android.text.style.ReplacementSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.R;
 
-/*
- * Created by Joss on 25/12/2016.
- */
-
 public class ChordSpan extends ReplacementSpan {
 
     private Chord mChord=new Chord();

@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joss.achords.AchordsActivity;
+import com.joss.achords.Database.DBHelper;
 import com.joss.achords.Models.Lyrics;
 import com.joss.achords.Models.Song;
 import com.joss.achords.Models.Songbook;
@@ -43,7 +44,11 @@ import java.util.Calendar;
 import java.util.UUID;
 
 
-public class EditionFragment extends Fragment implements Songbook.OnSongbookChangeListener, OnDialogFragmentInteractionListener, View.OnClickListener {
+public class EditionFragment extends Fragment implements
+        DBHelper.OnDBChangeListener,
+        OnDialogFragmentInteractionListener,
+        View.OnClickListener {
+
     private static final int URL_REQUEST_CODE = 1;
     private static final int RELEASE_YEAR_REQUEST_CODE = 2;
     Song mSong;
@@ -213,8 +218,8 @@ public class EditionFragment extends Fragment implements Songbook.OnSongbookChan
 
     public boolean saveModifications() {
         mEditedSong.setName(mEditionName.getText().toString());
-        mEditedSong.setArtist(mEditionArtist.getText().toString());
-        mEditedSong.setEditor(getActivity().getSharedPreferences(AchordsActivity.SHARED_PREFS, Context.MODE_PRIVATE).getString(AchordsActivity.USER_NAME, ""));
+        mEditedSong.setArtist(mEditionArtist.getText().toString().isEmpty()?getContext().getResources().getString(R.string.unknown):mEditionArtist.getText().toString());
+        mEditedSong.setEditor(AchordsActivity.getUser());
         try {
             mEditedSong.setReleaseYear(Integer.parseInt(mEditionReleaseYear.getText().toString()));
         } catch (NumberFormatException ignored) {

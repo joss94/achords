@@ -5,29 +5,30 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
+import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.joss.achords.AchordsActivity;
+import com.joss.achords.Database.DBHelper;
 import com.joss.achords.LyricsDisplay.ChordSpan;
 import com.joss.achords.Models.Chord;
 import com.joss.achords.Models.Lyrics;
@@ -42,7 +43,6 @@ import com.joss.achords.SongEnvironment.ChordsEdition.Timestamps.TimestampsDialo
 import com.joss.utils.AbstractDialog.OnDialogFragmentInteractionListener;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -59,26 +59,19 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     private static final int SELECT_CHORD_REQUEST_CODE = 1;
     private static final int CAPO_REQUEST_CODE = 2;
 
-    private Song mSong;
-    private Song mEditedSong;
+    private Song mSong, mEditedSong;
     private UUID mSongID;
     private Lyrics mLyrics;
     private LinearLayout mLyricsLayout;
-    private int mCurrentLine=0;
-    private int mCurrentIndex;
+    private int mCurrentLine=0, mCurrentIndex;
     private Chord mCurrentChord;
     private Context mContext;
     private ImageButton mAddChordButton;
-    private List<EditTextChords> mLyricsLineViews;
     private ChordButtonAdapter mRecentChordsAdapter;
     private ScrollView mScrollView;
     private RecyclerView mRecentChords;
     private TextView mCapo;
     private ImageButton mSetTimestampsButton;
-    private RelativeLayout chordBin;
-    private boolean chordInBin=false;
-
-    private int cursorOffset;
 
     public ChordFragment() {
 
@@ -96,13 +89,10 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        cursorOffset = 100;
-
-        mLyricsLineViews = new ArrayList<>();
         mCurrentChord = new Chord();
 
         mSongID = (UUID)getArguments().getSerializable(EXTRA_SONG_ID);
-        Songbook.get(getActivity()).addOnSongbookChangeListener(new Songbook.OnSongbookChangeListener() {
+        Songbook.get(getActivity()).addOnSongbookChangeListener(new DBHelper.OnDBChangeListener() {
             @Override
             public void onDBChange() {
                 refresh();
@@ -114,7 +104,6 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context.getApplicationContext();
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
@@ -127,6 +116,10 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         setViews();
         refresh();
 
+        for(Chord chord : mSong.getAllChords()){
+            mRecentChordsAdapter.addChord(chord);
+        }
+
         return v;
     }
 
@@ -136,7 +129,6 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         mRecentChords = (RecyclerView) v.findViewById(R.id.recent_chords);
         mLyricsLayout = (LinearLayout)v.findViewById(R.id.chord_lyrics);
         mScrollView = (ScrollView)v.findViewById(R.id.scroll_view);
-        chordBin = (RelativeLayout)v.findViewById(R.id.chord_bin);
         mCapo = (TextView) v.findViewById(R.id.display_capo);
     }
 
@@ -147,7 +139,6 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         mAddChordButton.setOnClickListener(this);
         mSetTimestampsButton.setOnClickListener(this);
         mCapo.setOnClickListener(this);
-        mScrollView.setOnDragListener(this);
 
         mRecentChordsAdapter = new ChordButtonAdapter(new ArrayList<Chord>(), this);
         mRecentChords.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -157,22 +148,20 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
 
     private void displayLyrics(){
         mLyricsLayout.removeAllViewsInLayout();
-        mLyricsLineViews.clear();
 
         for (int i=0; i<mLyrics.size();i++){
             //<editor-fold desc="CREATING LYRICS VIEWS">
             final EditTextChords lineView = new EditTextChords(mLyricsLayout.getContext(), i);
-            mLyricsLineViews.add(lineView);
             lineView.setId(i);
             lineView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimension(R.dimen.size_lyrics));
             lineView.setBackground(null);
             lineView.setPadding(0,0,0,0);
-            lineView.setInputType(InputType.TYPE_CLASS_TEXT |
-                    InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             lineView.setTextIsSelectable(true);
+            lineView.setFocusable(true);
             lineView.setLongClickable(false);
             lineView.setOnFocusChangeListener(this);
             lineView.setOnDoubleTapListener(this);
+            lineView.setOnDragListener(this);
 
             //<editor-fold desc="SET TEXT AND CHORDS">
             final SpannableString spannable  = new SpannableString(mLyrics.get(i).getText());
@@ -190,11 +179,25 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
             lineView.setText(spannable, TextView.BufferType.SPANNABLE);
             //</editor-fold>
 
+            lineView.setFilters(new InputFilter[] {
+                    new InputFilter() {
+                        public CharSequence filter(CharSequence src, int start,
+                                                   int end, Spanned dst, int dstart, int dend) {
+                            return src.length() < 1 ? dst.subSequence(dstart, dend) : "";
+                        }
+                    }
+            });
             mLyricsLayout.addView(lineView, new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
             mLyricsLayout.invalidate();
         //</editor-fold>
         }
+        TextView emptyLastLine = new TextView(mContext);
+        emptyLastLine.setTextSize(TypedValue.COMPLEX_UNIT_PX, mContext.getResources().getDimension(R.dimen.size_lyrics));
+        emptyLastLine.setVisibility(View.INVISIBLE);
+        emptyLastLine.setId(mLyricsLayout.getChildCount());
+        emptyLastLine.setOnDragListener(this);
+        mLyricsLayout.addView(emptyLastLine);
     }
 
     public void refresh(){
@@ -222,18 +225,6 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
         refresh();
     }
 
-    public int getFocusedLine(float y){
-        y=y-(float) cursorOffset;
-        int i=0;
-        while(i< mLyricsLayout.getChildCount() && (mLyricsLayout.getChildAt(i).getTop()+ mLyricsLayout.getTop()+mScrollView.getChildAt(0).getTop()-mScrollView.getScrollY()<y)){
-            i++;
-        }
-        if(y< mLyricsLayout.getChildAt(mLyricsLayout.getChildCount()-1).getBottom()+ mLyricsLayout.getTop()+mScrollView.getChildAt(0).getTop()-mScrollView.getScrollY()){
-            i=i-1;
-        }
-        return Math.max(i,0);
-    }
-
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if(hasFocus){
@@ -252,7 +243,7 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.add_chord_button:
-                ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance(mCurrentChord.getNote(), mCurrentChord.getMode());
+                ChordDialogFragment chooseChordFragment = ChordDialogFragment.newInstance();
                 chooseChordFragment.setOnFragmentInteractionListener(this);
                 chooseChordFragment.setRequestCode(SELECT_CHORD_REQUEST_CODE);
                 chooseChordFragment.show(getFragmentManager(), mContext.getString(R.string.select_chord));
@@ -283,80 +274,54 @@ public class ChordFragment extends Fragment implements View.OnDragListener,
     @Override
     public void onChordButtonLongClicked(View v, Chord chord) {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_CHORD, ((ChordButton)v).getChord());
+
+        Bundle args = new Bundle();
+        args.putSerializable(EXTRA_CHORD, ((ChordButton)v).getChord());
+        intent.putExtra(EXTRA_CHORD, args);
 
         ClipData.Item item = new ClipData.Item(intent);
         ClipData dragData = new ClipData(v.toString(), new String[] {},item);
 
         View.DragShadowBuilder chordShadow = new ChordDragShadowBuilder(v);
-        //noinspection deprecation
-        v.startDrag(dragData, chordShadow, null, 0);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            v.startDragAndDrop(dragData, chordShadow, null, 0);
+        } else {
+            //noinspection deprecation
+            v.startDrag(dragData, chordShadow, null, 0);
+        }
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public boolean onDrag(View v, DragEvent event) {
-        final int action = event.getAction();
 
-        switch(action){
-            case DragEvent.ACTION_DRAG_STARTED:
-                chordBin.setVisibility(View.VISIBLE);
-                return true;
+        v = mLyricsLayout.findViewById(Math.max(v.getId()-1, 0));
 
+        switch(event.getAction()){
 
             case DragEvent.ACTION_DRAG_LOCATION:
-
-                if(event.getY()<chordBin.getBottom()){
-                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black_dark));
-                    chordInBin = true;
-                } else{
-                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
-                    chordInBin = false;
-                    int index = getFocusedLine(event.getY());
-
-                    v = mLyricsLayout.getChildAt(index);
-                    if (v instanceof EditTextChords) {
-                        v.requestFocus();
-                        int[] vAbsolute = {0,0};
-                        v.getLocationOnScreen(vAbsolute);
-                        ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX()-mScrollView.getPaddingStart(), event.getY()-vAbsolute[1]+cursorOffset));
-                        mCurrentLine = index;
-                        mCurrentIndex = ((EditTextChords) v).getSelectionStart();
-                    }
+                if (v instanceof EditTextChords) {
+                    v.requestFocus();
+                    int[] vAbsolute = {0,0};
+                    v.getLocationOnScreen(vAbsolute);
+                    ((EditTextChords) v).setSelection(((EditTextChords) v).getOffsetForPosition(event.getX()-mScrollView.getPaddingStart(), event.getY()-vAbsolute[1]));
+                    mCurrentIndex = ((EditTextChords) v).getSelectionStart();
+                    return false;
                 }
-
-                return true;
-
-            case DragEvent.ACTION_DRAG_EXITED:
-                if(chordInBin){
-                    chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
-                    chordInBin = false;
-                }
-                return true;
+                return false;
 
             case DragEvent.ACTION_DROP:
-                if(!chordInBin){
-                    ClipData.Item item = event.getClipData().getItemAt(0);
-                    Intent dragdata = item.getIntent();
-                    mCurrentChord = (Chord)dragdata.getSerializableExtra(EXTRA_CHORD);
-                    addChord();
-                }
-                chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
-                chordInBin = false;
-                chordBin.setVisibility(View.GONE);
-                return true;
-
-            case DragEvent.ACTION_DRAG_ENDED:
-                chordBin.setBackgroundColor(mContext.getResources().getColor(R.color.transparent_black));
-                chordInBin = false;
-                chordBin.setVisibility(View.GONE);
+                ClipData.Item item = event.getClipData().getItemAt(0);
+                Intent dragData = item.getIntent();
+                Bundle args = dragData.getBundleExtra(EXTRA_CHORD);
+                mCurrentChord = (Chord) args.getSerializable(EXTRA_CHORD);
+                addChord();
                 return true;
 
             default:
-                break;
+                return false;
         }
-
-        return false;
     }
 
     @Override

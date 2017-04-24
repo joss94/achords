@@ -1,6 +1,7 @@
 package com.joss.achords.SongbookHome;
 
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.joss.achords.R;
 import com.joss.utils.AbstractDialog.AbstractDialogFragment;
@@ -11,13 +12,13 @@ import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
 public class ConfirmDeleteDialogFragment extends AbstractDialogFragment {
 
-    public ConfirmDeleteDialogFragment() {
-        setLayoutId(R.layout.confirm_delete_dialog);
+    @Override
+    public int getLayoutId() {
+        return R.layout.confirm_delete_dialog;
     }
 
     @Override
-    protected void setViews(){
-        super.setViews();
+    public void setViews(){
         setTitle(getContext().getResources().getString(R.string.confirm_delete_dialog_title));
     }
 
@@ -25,5 +26,10 @@ public class ConfirmDeleteDialogFragment extends AbstractDialogFragment {
     public boolean callback(){
         listener.onFragmentInteraction(getRequestCode(), AppCompatActivity.RESULT_OK);
         return true;
+    }
+
+    @Override
+    public void findViews(View view) {
+
     }
 }

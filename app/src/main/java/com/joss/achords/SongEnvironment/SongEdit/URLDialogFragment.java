@@ -8,17 +8,14 @@ import android.widget.EditText;
 import com.joss.achords.R;
 import com.joss.utils.AbstractDialog.AbstractDialogFragment;
 
-/*
- * Created by Joss on 21/12/2016.
- */
-
 @TargetApi(15)
 public class URLDialogFragment extends AbstractDialogFragment {
 
     private EditText urlEdit;
 
-    public URLDialogFragment() {
-        setLayoutId(R.layout.url_dialog);
+    @Override
+    public int getLayoutId() {
+        return R.layout.url_dialog;
     }
 
     public static URLDialogFragment newInstance(){
@@ -26,13 +23,12 @@ public class URLDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    protected void findViews(View v){
-        super.findViews(v);
+    public void findViews(View v){
         urlEdit = (EditText)v.findViewById(R.id.url);
     }
 
     @Override
-    protected void setViews(){
+    public void setViews(){
         setTitle(getContext().getResources().getString(R.string.url_dialog_title));
     }
 

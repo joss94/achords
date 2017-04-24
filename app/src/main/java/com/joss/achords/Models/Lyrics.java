@@ -24,7 +24,7 @@ public class Lyrics extends ArrayList<LyricsLine>{
         }
     }
 
-    Lyrics(JSONObject jsonObject)  {
+    public Lyrics(JSONObject jsonObject)  {
         try {
             JSONArray jsonArray = jsonObject.getJSONArray(JSON_KEY_LYRICS);
             for(int i=0;i<jsonArray.length();i++){
@@ -47,7 +47,7 @@ public class Lyrics extends ArrayList<LyricsLine>{
         return r;
     }
 
-    JSONObject ToJSON() throws JSONException {
+    public JSONObject ToJSON() throws JSONException {
         JSONObject r = new JSONObject();
         JSONArray jsonArray = new JSONArray();
         for(LyricsLine lyricsLine:this){

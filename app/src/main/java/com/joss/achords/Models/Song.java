@@ -15,6 +15,7 @@ import java.util.UUID;
 
 public class Song implements Serializable{
 
+    private static final long serialVersionUID = -1985913303538451832L;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.ENGLISH);
 
     //VALUES
@@ -22,7 +23,7 @@ public class Song implements Serializable{
     private String name;
     private String artist;
     private int releaseYear;
-    private String editor;
+    private User editor;
     private Date lastEditionDate;
     private Lyrics lyrics;
 
@@ -42,7 +43,7 @@ public class Song implements Serializable{
             this.name=json.getString("name");
             this.artist=json.getString("artist");
             this.releaseYear=json.getInt("releaseYear");
-            this.editor=json.getString("editor");
+            this.editor=User.parseJson(json.getString("editor"));
             this.lastEditionDate = sdf.parse(json.getString("lastEditionDate"));
             this.lyrics=new Lyrics(json.getJSONObject("lyrics"));
             if (json.has("capo")) {
@@ -70,11 +71,11 @@ public class Song implements Serializable{
         return releaseYear;
     }
 
-    public String getEditor() {
+    public User getEditor() {
         return editor;
     }
 
-    Date getLastEditionDate() {
+    public Date getLastEditionDate() {
         return lastEditionDate;
     }
 
@@ -101,6 +102,14 @@ public class Song implements Serializable{
         return null;
     }
 
+    public List<Chord> getAllChords(){
+        List<Chord> result = new ArrayList<>();
+        for(LyricsLine line : lyrics){
+            result.addAll(line.getChords());
+        }
+        return result;
+    }
+
     //SETTERS
     public void setId(UUID id) {
         this.id = id;
@@ -118,7 +127,7 @@ public class Song implements Serializable{
         this.releaseYear = releaseYear;
     }
 
-    public void setEditor(String editor) {
+    public void setEditor(User editor) {
         this.editor = editor;
     }
 
@@ -185,7 +194,7 @@ public class Song implements Serializable{
         song_obj.put("name", this.name);
         song_obj.put("artist", this.artist);
         song_obj.put("releaseYear", this.releaseYear);
-        song_obj.put("editor", this.editor);
+        song_obj.put("editor", this.editor.toJSON());
         song_obj.put("lastEditionDate", sdf.format(this.lastEditionDate));
         song_obj.put("lyrics", this.lyrics.ToJSON());
         song_obj.put("capo", this.capo);

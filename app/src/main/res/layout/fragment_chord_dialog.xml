@@ -1,24 +1,145 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_gravity="center"
     tools:context=".SongEnvironment.ChordsEdition.ChordDialogFragment">
 
+    <LinearLayout
+        android:id="@+id/note_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small">
 
-        <Spinner
-            android:id="@+id/note_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="3dp"/>
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="A"
+            app:mode="major"
+            app:color="@color/white"/>
 
-        <Spinner
-            android:id="@+id/mode_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:padding="3dp"/>
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="B"
+            app:mode="major"
+            app:color="@color/white"/>
 
-</LinearLayout>
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="C"
+            app:mode="major"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="D"
+            app:mode="major"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="E"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="F"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:note="G"
+            app:color="@color/white"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mode_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/note_container"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small">
+
+
+    <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:mode="minor"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:mode="four"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:mode="seven"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:mode="seven_major"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:mode="six"
+            app:color="@color/white"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/attribute_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/mode_container"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/activity_horizontal_margin_small"
+        android:layout_marginTop="@dimen/activity_horizontal_margin_small">
+
+
+    <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:attribute="b"
+            app:color="@color/white"/>
+
+        <com.joss.achords.SongEnvironment.ChordsEdition.FloatingChords.ChordButton
+            android:layout_width="@dimen/round_button_size_small"
+            android:layout_height="@dimen/round_button_size_small"
+            app:textSize="@dimen/text_normal"
+            app:attribute="d"
+            app:color="@color/white"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

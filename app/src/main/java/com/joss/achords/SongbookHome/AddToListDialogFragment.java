@@ -30,10 +30,6 @@ public class AddToListDialogFragment extends AbstractDialogFragment {
     UUID songId;
     DialogSonglistAdapter adapter;
 
-    public AddToListDialogFragment() {
-        setLayoutId(R.layout.add_to_list_dialog);
-    }
-
     public static AddToListDialogFragment newInstance(UUID id){
         Bundle args = new Bundle();
         args.putSerializable(SONG_ID_KEY, id);
@@ -50,15 +46,18 @@ public class AddToListDialogFragment extends AbstractDialogFragment {
     }
 
     @Override
-    protected void findViews(View v){
-        super.findViews(v);
+    public int getLayoutId() {
+        return R.layout.add_to_list_dialog;
+    }
+
+    @Override
+    public void findViews(View v){
         mRecyclerView = (RecyclerView) v.findViewById(R.id.list);
         newListEditText = (EditText)v.findViewById(R.id.new_list);
     }
 
     @Override
-    protected void setViews(){
-        super.setViews();
+    public void setViews(){
         setTitle(getString(R.string.add_to_list_dialog_title));
         adapter = new DialogSonglistAdapter(AchordsActivity.SONGBOOK.getLists());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

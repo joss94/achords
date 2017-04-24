@@ -26,8 +26,9 @@ public class FileDialogFragment extends AbstractDialogFragment implements OnItem
     private String mChosenFilePath = "";
     private SelectAdapter<File> adapter;
 
-    public FileDialogFragment() {
-        setLayoutId(R.layout.fragment_file_dialog);
+    @Override
+    public int getLayoutId() {
+        return R.layout.fragment_file_dialog;
     }
 
     public static FileDialogFragment newInstance() {
@@ -56,13 +57,11 @@ public class FileDialogFragment extends AbstractDialogFragment implements OnItem
 
     @Override
     public void findViews(View v){
-        super.findViews(v);
         mRecyclerView= (RecyclerView) v.findViewById(R.id.file_chooser_listview);
     }
 
     @Override
     public void setViews(){
-        super.setViews();
         setTitle(getContext().getResources().getString(R.string.import_dialog_title));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new FileAdapter(mFileList);
